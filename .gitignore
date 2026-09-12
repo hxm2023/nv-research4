@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+venv/
+
+# Build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+
+# Data & checkpoints
+*.pt
+*.pth
+*.ckpt
+checkpoints/
+data_lab/raw/
+runs/
+outputs/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# ARIS internal (manifest committed; skill symlinks under .claude/skills)
+.claude/skills/
+.aris/tools
