@@ -41,9 +41,9 @@ $r^{*}\approx\crossoverRepsRounded\times10^{4}$ repetitions. A synthetic control
 exact ground truth reproduces the crossover, confirming that it is a property of the
 estimator structure and of the instrument's envelope inhomogeneity rather than of the
 data-analysis pipeline. An amortized neural estimator trained across the whole budget
-range selects its own degree of pooling: it attains the best measured precision of any
-estimator at and above $80$k repetitions and stays within $\sim\!25\%$ of the pooled bound
-at the lowest budget, without being told which parameters are shared. The crossover sets
+range selects its own degree of pooling: without being told the instrument model, it
+attains the best measured precision of any estimator from $80$k to $320$k repetitions and
+stays within $\sim\!15\%$ of the best classical estimator at both ends of the ladder. The crossover sets
 an operationally useful rule: spend photons until the pooled estimator's bias floor is
 reached, then stop sharing.
 \end{abstract}
@@ -379,15 +379,19 @@ population, measured noise law, blind fields) and evaluation is on the real trac
 low-budget trace is used in training. Reported values are the median over
 \nSeedsNetSet{} training seeds.
 
-Table~\ref{tab:ladder} and Fig.~\ref{fig:ladder} show the outcome. Without being told which
-parameters are shared, the network lands close to pooled inference at the lowest budgets
-($\rmseNetSetFiveK$~nT at $\rMinK$k, i.e.\ $27\%$ better than per-trace fitting and within
-$23\%$ of pooled inference), and it becomes the best measured estimator at and above $80$k
-repetitions ($\rmseNetSetEightyK$~nT at $80$k against $\rmsePartEightyK$~nT for the best classical
-estimator, and $\rmseNetSetThreeTwentyK$~nT at $320$k against $\rmseLmThreeTwentyK$~nT). In other words the
-network learns to avoid the pooled estimator's bias trap at high budget while still
-capturing much of the pooling gain at low budget, which is the budget-dependent behaviour
-that the fitted law prescribes without the law being supplied to it.
+Table~\ref{tab:ladder} and Fig.~\ref{fig:ladder} show the outcome. The network does not
+reach the classical pooled fitter at the lowest budgets ($\rmseNetSetFiveK$~nT at
+$\rMinK$k, against $\rmsePoolFiveK$~nT for shared-envelope pooling and $\rmseLmFiveK$~nT
+for per-trace fitting), but it becomes the best measured estimator of any method from
+$80$k to $320$k repetitions ($\rmseNetSetEightyK$~nT at $80$k against $\rmsePartEightyK$~nT
+for the best classical estimator; $\rmseNetSetThreeTwentyK$~nT at $320$k against
+$\rmseLmThreeTwentyK$~nT), and at $\rMaxK$k it is within $12\%$ of per-trace fitting
+($\rmseNetSetSixFortyK$ against $\rmseLmSixFortyK$~nT) while every pooled estimator is
+$1.6$--$2.5\times$ worse. In other words the network has learned to stop sharing once
+sharing becomes harmful, which is the budget-dependent behaviour that the fitted law
+prescribes without the law being supplied to it; it does not, however, yet match the
+classical pooled fitter in the regime where aggressive sharing is optimal, and we report
+that shortfall rather than presenting the network as uniformly superior.
 
 \section{Discussion}
 
