@@ -17,7 +17,7 @@ venv/
 *.pth
 *.ckpt
 checkpoints/
-data_lab/raw/
+data_lab/
 runs/
 outputs/
 
