@@ -1,0 +1,168 @@
+{
+  "source": "arxiv.org (open access)",
+  "downloaded_at": "2026-09-12",
+  "requested": 22,
+  "succeeded": [
+    {
+      "slug": "taylor2008_diamond_magnetometer_theory",
+      "arxiv_id": "0805.1367",
+      "pages": 29,
+      "chars": 44784,
+      "title": "High-sensitivity diamond magnetometer with nanoscale resolution"
+    },
+    {
+      "slug": "degen2017_quantum_sensing",
+      "arxiv_id": "1611.02427",
+      "pages": 45,
+      "chars": 206261,
+      "title": "Quantum Sensing"
+    },
+    {
+      "slug": "barry2020_sensitivity_optimization_nv",
+      "arxiv_id": "1903.08176",
+      "pages": 73,
+      "chars": 376462,
+      "title": "Sensitivity Optimization for NV-Diamond Magnetometry"
+    },
+    {
+      "slug": "cavity_nanophotonic_ramsey_2025",
+      "arxiv_id": "2511.19831",
+      "pages": 21,
+      "chars": 92462,
+      "title": "Nanophotonic magnetometry in a spin-dense diamond cavity"
+    },
+    {
+      "slug": "cw_vs_pulsed_nv_dc_magnetometry_2024",
+      "arxiv_id": "2311.06055",
+      "pages": 16,
+      "chars": 51118,
+      "title": "Comparing continuous and pulsed nitrogen-vacancy DC magnetometry in the optical-power-limited regime"
+    },
+    {
+      "slug": "leclerc2026_error_budgets_quantum_sensors",
+      "arxiv_id": "2608.28519",
+      "pages": 78,
+      "chars": 196803,
+      "title": "Beyond sensitivity: mechanism-resolved error budgets for designing quantum sensors"
+    },
+    {
+      "slug": "triple_tone_microwave_nv_magnetometers_2025",
+      "arxiv_id": "2510.00913",
+      "pages": 16,
+      "chars": 50979,
+      "title": "Triple-Tone Microwave Control for Sensitivity Optimization in Compact Ensemble Nitrogen-Vacancy Magnetometers"
+    },
+    {
+      "slug": "santagati2019_one_photon_bayesian_nv",
+      "arxiv_id": "1807.09753",
+      "pages": 18,
+      "chars": 75979,
+      "title": "Magnetic-ﬁeld-learning using a single electronic spin in diamond with one-photon-readout at room temperature"
+    },
+    {
+      "slug": "mcmichael2021_sequential_bayesian_ramsey",
+      "arxiv_id": "2105.02327",
+      "pages": 25,
+      "chars": 35974,
+      "title": "Sequential Bayesian experiment design for adaptive Ramsey sequence measurements. Robert D. McMichael, 1 Sergey Dushenko, 1, 2 and Sean M. Blakley 1"
+    },
+    {
+      "slug": "wu2021_continuous_sensing_cpt",
+      "arxiv_id": "2102.07212",
+      "pages": 22,
+      "chars": 42011,
+      "title": "Continuous Real-Time Sensing with a Nitrogen Vacancy Center via Coherent Population Trapping"
+    },
+    {
+      "slug": "shang2026_nvrnet_physics_informed_ramsey",
+      "arxiv_id": "2603.14144",
+      "pages": 26,
+      "chars": 100651,
+      "title": "Fast Single Nitrogen-Vacancy Center Ramsey Characterization using a Physics-Informed Neural Network"
+    },
+    {
+      "slug": "daniel2026_sim_to_real_nv_odmr",
+      "arxiv_id": "2608.19582",
+      "pages": 10,
+      "chars": 30815,
+      "title": "Physics-guided machine learning for sim-to-real calibration of NV diamond magnetometers"
+    },
+    {
+      "slug": "youssry2026_graybox_bayesian_quantum_sensing",
+      "arxiv_id": "2601.17465",
+      "pages": 20,
+      "chars": 79712,
+      "title": "Bayesian quantum sensing using graybox machine learning"
+    },
+    {
+      "slug": "yao2026_cnn_odmr_parameter_inference",
+      "arxiv_id": "2603.14728",
+      "pages": 17,
+      "chars": 60526,
+      "title": "A Deep-Learning-Boosted Framework for Quantum Sensing with Nitrogen-Vacancy Centers in Diamond"
+    },
+    {
+      "slug": "varona2024_signal_to_image_nuclear_spins",
+      "arxiv_id": "2311.15037",
+      "pages": 12,
+      "chars": 48577,
+      "title": "Automatic Detection of Nuclear Spins at Arbitrary Magnetic Fields via Signal-to-Image AI Model"
+    },
+    {
+      "slug": "haim2025_ml_high_bandwidth_magnetic_sensing",
+      "arxiv_id": "2409.12820",
+      "pages": 12,
+      "chars": 47795,
+      "title": "Machine-learning based high-bandwidth magnetic sensing"
+    },
+    {
+      "slug": "guo2025_two_stage_single_electron_sensing",
+      "arxiv_id": "2506.13469",
+      "pages": 22,
+      "chars": 78746,
+      "title": "A Two-stage Optimization Method for Wide-range Single-electron Quantum Magnetic Sensing"
+    },
+    {
+      "slug": "rieckmann2026_nn_vector_magnetometry",
+      "arxiv_id": "2606.02749",
+      "pages": 11,
+      "chars": 49645,
+      "title": "Vector Magnetometry with Broadband Microwave Fields in Nitrogen-Vacancy Centers in Diamond"
+    },
+    {
+      "slug": "belliardo2024_model_aware_rl_metrology",
+      "arxiv_id": "2403.05706",
+      "pages": 35,
+      "chars": 137085,
+      "title": "Applications of model-aware reinforcement learning in Bayesian quantum metrology"
+    },
+    {
+      "slug": "amortized_bnn_nv_sensing_2025",
+      "arxiv_id": "2512.11300",
+      "pages": 13,
+      "chars": 63047,
+      "title": "Distributed Quantum Magnetic Sensing for Infrastructure-free Geo-localization"
+    },
+    {
+      "slug": "nn_vs_mle_nonmarkovian_nv_2026",
+      "arxiv_id": "2608.27632",
+      "pages": 13,
+      "chars": 52681,
+      "title": "Machine Learning-Based Characterisation of the Non-Markovian Dynamics of a Nitrogen-Vacancy Centre"
+    },
+    {
+      "slug": "bhowmik2026_qml_measurement_information_loss",
+      "arxiv_id": "2608.23934",
+      "pages": 6,
+      "chars": 25818,
+      "title": "QML for Quantum Sensing under Measurement-Induced Information Loss"
+    }
+  ],
+  "failed": [],
+  "notes": [
+    "All 46 unique arXiv IDs cited anywhere in the KB (domain_overview.md, metrics_and_baselines.md, field_conventions.md, deep-experiment-logs/*.md) were checked against arxiv.org/abs; every one resolved (HTTP 200 with a real paper title). No hallucinated/unresolvable arXiv ID found.",
+    "Only arxiv.org was contacted; downloads via https://arxiv.org/pdf/<id> with a browser User-Agent and ~3 s spacing.",
+    "PDFs: research-wiki/papers/<slug>.pdf ; text: research-wiki/knowledge_base/papers/<slug>.json (PyMuPDF extraction).",
+    "KB characterization caveat (not an ID problem): arXiv:2512.11300 is titled \"Distributed Quantum Magnetic Sensing for Infrastructure-free Geo-localization\" (Le, Guo, Liu, NC State) and is a distributed-sensing / CRLB / geo-localization paper; PHASE0_DECISION.md and SCOOP_CHECK describe it as the amortized-BNN adaptive-tau paper. The ID is valid but the KB description appears to conflate it with the same group work mentioned in 2506.13469."
+  ]
+}

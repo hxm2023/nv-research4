@@ -1,0 +1,41 @@
+{
+  "domain_files": [
+    "domain_overview.md",
+    "metrics_and_baselines.md",
+    "field_conventions.md"
+  ],
+  "papers": [
+    "taylor2008_diamond_magnetometer_theory",
+    "degen2017_quantum_sensing",
+    "barry2020_sensitivity_optimization_nv",
+    "cavity_nanophotonic_ramsey_2025",
+    "cw_vs_pulsed_nv_dc_magnetometry_2024",
+    "leclerc2026_error_budgets_quantum_sensors",
+    "triple_tone_microwave_nv_magnetometers_2025",
+    "santagati2019_one_photon_bayesian_nv",
+    "mcmichael2021_sequential_bayesian_ramsey",
+    "wu2021_continuous_sensing_cpt",
+    "shang2026_nvrnet_physics_informed_ramsey",
+    "daniel2026_sim_to_real_nv_odmr",
+    "youssry2026_graybox_bayesian_quantum_sensing",
+    "yao2026_cnn_odmr_parameter_inference",
+    "varona2024_signal_to_image_nuclear_spins",
+    "haim2025_ml_high_bandwidth_magnetic_sensing",
+    "guo2025_two_stage_single_electron_sensing",
+    "rieckmann2026_nn_vector_magnetometry",
+    "belliardo2024_model_aware_rl_metrology",
+    "amortized_bnn_nv_sensing_2025",
+    "nn_vs_mle_nonmarkovian_nv_2026",
+    "bhowmik2026_qml_measurement_information_loss"
+  ],
+  "total_papers": 22,
+  "scoop_check": "deep-experiment-logs/SCOOP_CHECK_2026-09-12.md",
+  "built": "2026-09-12",
+  "paper_layer": {
+    "pdf_dir": "research-wiki/papers/",
+    "json_dir": "research-wiki/knowledge_base/papers/",
+    "download_log": "research-wiki/knowledge_base/papers/_download_log.json",
+    "script": "research-wiki/knowledge_base/download_papers.py",
+    "source": "arxiv.org (open access PDFs)"
+  }
+}

@@ -30,3 +30,16 @@ Thumbs.db
 # ARIS internal (manifest committed; skill symlinks under .claude/skills)
 .claude/skills/
 .aris/tools
+
+# Derived real-data cache (from lab raw data; keep local + jindun only)
+data/
+
+# scratch
+*.log
+
+# Downloaded paper PDFs (large; keep local, copyright)
+research-wiki/papers/*.pdf
+
+# arXiv full-text extracts (copyright; keep local)
+research-wiki/knowledge_base/papers/*.json
+!research-wiki/knowledge_base/papers/_download_log.json
