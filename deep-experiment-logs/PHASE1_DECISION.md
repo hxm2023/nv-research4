@@ -136,3 +136,33 @@ the bias floor, the budget-dependent crossover law) with the amortized estimator
 a structure-free alternative that matches the classical bound at low budget, and the AI
 headline is withdrawn. That is the pre-agreed fallback and it is not a failure — the
 crossover law stands on its own.
+
+---
+
+# ADDENDUM 2: diagnosis of the amortized estimator's systematic offset
+
+The 5-seed networks show a consistent negative offset on REAL data (mean error
+−88, −63, −63, −104, −96, −94, −78, −101 nT across the eight budgets, cols 7–40).
+`diagnose_net_bias.py` re-ran the trained network on SYNTHETIC sessions with exact
+ground truth, both in the training distribution and on a uniform field grid:
+
+| session | 1 | 2 | 3 |
+|---|---|---|---|
+| mean error, training distribution | +55.2 | −111.9 | +662.2 nT |
+| mean error, uniform grid | +125.1 | +92.9 | −122.9 nT |
+
+The sign and size vary per session — there is **no reproducible model bias**. Therefore
+the real-data offset is a *signal-model mismatch between the synthetic generator and the
+real instrument* (candidates: unmodelled baseline drift, the exact decay form, the
+detuning/τ_off treatment), not a property of the estimator's inference.
+
+Consequences, stated plainly:
+- The headline classical results (the two bounds, the bias floor, the crossover law) are
+  computed by direct optimisation on the real traces and are **unaffected**; their biases
+  at high budget are small (per-trace −15 nT at 640 k).
+- The amortized estimator is **not yet usable as a measurement estimator** on real data:
+  a ~90 nT systematic is larger than the per-trace statistical error at r >= 3.2e5.
+- Phase 2 objective 1 therefore has two parts: (a) remove the real-data systematic
+  (diagnose which generator term is missing; the most likely candidate is a slowly varying
+  baseline that the real instrument has and the generator does not), and (b) add the
+  per-column envelope granularity that makes partial pooling strong.
