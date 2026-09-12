@@ -118,7 +118,7 @@ $\phi_0$ is common to all field settings of one sweep, as we verify below.
 \emph{Noise.} A robust per-point noise estimate (standard deviation of the three-point
 second difference, divided by $\sqrt 6$) gives $0.2079,0.1500,0.1072,0.0745,0.0533,0.0370,
 0.0263,0.0183$ for the eight sheets, matching the shot-noise law
-$\sigma(r)=0.207\sqrt{5000/r}$ to within $1$--$3.5\%$. We use that law wherever a noise
+$\sigma(r)=0.207\sqrt{5000/r}$ to within $0.2$--$3.5\%$. We use that law wherever a noise
 level is needed.
 
 \emph{Envelope population.} Fitting Eq.~\eqref{eq:model} to the $\nCols$ columns of the
@@ -177,8 +177,8 @@ exactly true for a real instrument.
 
 \emph{Per-trace fitting} (\texttt{lm}). Levenberg--Marquardt least squares with
 multi-start over the initial phase, fitting all six parameters of Eq.~\eqref{eq:model} from
-the FFT estimate, with $25$ starts inside the blind window. Doubling the number of starts
-changes the result by less than $0.1$~nT.
+the FFT estimate, with nine starts inside the blind window. Raising the number of starts to
+$100$ changes the fitted fields by less than $0.1$~nT for almost every column.
 
 \emph{Session-pooled fitting} (\texttt{pool}). A single least-squares problem over all
 $\nCols$ columns of a sweep: one $(A,C,T_2^{*},p,\phi_0)$ shared by every column and one
@@ -209,9 +209,12 @@ charged the same session time.
 
 Figure~\ref{fig:ladder} and Table~\ref{tab:ladder} give the central measurement. In the
 primary region, per-trace fitting attains $\rmseLmFiveK$~nT at $\rMinK$k repetitions against
-its own free-envelope bound of $\crlbFreeFiveK$~nT, an efficiency of $1.0$--$1.3$ across the
-whole budget ladder: the classical fitter is essentially not improvable by a better
-optimiser. Session pooling attains $\rmsePoolFiveK$~nT against a joint bound of
+its own free-envelope bound of $\crlbFreeFiveK$~nT --- an efficiency (RMSE divided by that
+bound) between $1.0$ and $1.3$ for $r\le320$k and $0.91$ at $\rMaxK$k. The classical fitter
+is therefore essentially not improvable by a better optimiser. The bound is evaluated with a
+single reference envelope (the column mean of the high-budget fits); the sub-unity value at
+$\rMaxK$k, where the per-column envelopes differ most from that reference, is a limitation of
+the reference rather than evidence of super-efficiency. Session pooling attains $\rmsePoolFiveK$~nT against a joint bound of
 $\crlbJointFiveK$~nT, also efficient. The pooled estimator is better by a factor
 $\ratioLmPoolFiveK$ at $\rMinK$k repetitions ($\ratioLmPoolTenK$ at $10$k), and that factor is
 the same one by which pooling lowers the bound. Pooling therefore does not recover lost
@@ -219,11 +222,23 @@ efficiency; it changes the bound. This is the first result: at low photon budget
 achievable precision is limited by the identifiability of the field jointly with the
 instrument's nuisance parameters, not by the optimiser.
 
+Paired Wilcoxon signed-rank tests over the $34$ real columns of the primary region confirm
+the ordering: the pooled-versus-per-trace contrast has
+$p=\pJointVsLmTenK$ at $10$k and $\pJointVsLmFortyK$ at $40$k repetitions, while at
+$\rMinK$k it is marginal ($p=\pJointVsLmFiveK$) because the per-trace error distribution has
+a heavy tail there. The reversal at high budget is equally significant
+($p=\pJointVsLmThreeTwentyK$ at $320$k and $\pJointVsLmSixFortyK$ at $\rMaxK$k, in the
+opposite direction). We therefore present the ladder as a curve described by a two-parameter
+law rather than as eight independent significance claims, with the two lowest budgets as the
+pre-declared primary contrast.
+
 \begin{table}[t]
 \caption{Field RMSE (nT) over the real columns 7--40 as a function of repetitions per delay
 point: per-trace LM, session pooling (shared envelope), partial pooling (per-column
-$T_2^{*}$) and the amortized session-conditioned network. Values are generated from
-\texttt{results/analysis\_v2.json} by \texttt{src/make\_numbers.py}.}
+$T_2^{*}$) and the amortized session-conditioned network. The classical columns are
+generated from \texttt{results/analysis\_v2.json} and the network column from
+\texttt{results/blind\_res\_nets.json}, both by \texttt{src/make\_numbers.py}; no value in
+this table was entered by hand.}
 \label{tab:ladder}
 \begin{ruledtabular}
 \begin{tabular}{r c c c c}
@@ -254,10 +269,11 @@ crossover $r^{*}$.}
 
 Table~\ref{tab:ladder} also shows the reversal: above $\sim\!80$k repetitions the pooled
 estimator stops improving and is overtaken by per-trace fitting. The reason is visible in
-the estimator bias (Fig.~\ref{fig:bias}). The per-trace bias is consistent with zero at
-every budget, whereas the pooled estimator acquires a positive bias that grows with the
-budget ($\biasPoolEightyK$~nT at $80$k, $\biasPoolSixFortyK$~nT at $\rMaxK$k): the shared model
-becomes progressively more wrong as the statistical error shrinks.
+the estimator bias (Fig.~\ref{fig:bias}). The per-trace bias stays within
+$\pm\biasLmEightyK$~nT of zero across the whole ladder, whereas the pooled estimator carries
+a positive bias of order $100$~nT from $80$k repetitions upward
+($\biasPoolEightyK$~nT at $80$k, $\biasPoolSixFortyK$~nT at $\rMaxK$k): once the statistical
+error falls below the shared-model error, the latter dominates the total.
 
 The whole ladder is described by a two-term law,
 \begin{equation}
@@ -291,16 +307,22 @@ stays consistent, which is the mechanism behind the crossover of Fig.~\ref{fig:l
 The crossover is a statement about estimators, so it must be reproducible with exact ground
 truth. We therefore generated synthetic sessions from Eq.~\eqref{eq:model} with per-column
 envelopes drawn from the measured population, exact known fields and the measured shot-noise
-levels, and repeated the comparison (Fig.~\ref{fig:control}). The crossover is reproduced:
-pooled fitting wins by $1.4\times$ at $\rMinK$k repetitions ($\ctrlPoolFiveK$ versus
-$\ctrlLmFiveK$~nT) and loses by $4.2\times$ at $\rMaxK$k ($\ctrlPoolSixFortyK$ versus
-$\ctrlLmSixFortyK$~nT), with the pooled error flattening at $\sim\!\lawBPool$~nT, the same floor
-as in the fit to the real ladder. Because the synthetic experiment has no measurement
-systematics, no calibration error and no data-pipeline artefacts, the floor must come from
-the model: it is the envelope inhomogeneity of Fig.~\ref{fig:env} entering through the
-shared-envelope assumption. Partial pooling, which lets $T_2^{*}$ vary per column, lowers
-the floor ($\ctrlPartSixFortyK$~nT at $\rMaxK$k) and shifts the crossover beyond the measured
-range, exactly as expected if the floor is caused by the constraint that is relaxed.
+levels, and repeated the comparison (Fig.~\ref{fig:control}). The crossover is reproduced
+with medians here, rather than the RMSEs of Table~\ref{tab:ladder}: pooled fitting wins by
+$1.4\times$ at $\rMinK$k repetitions ($\ctrlPoolFiveK$ versus $\ctrlLmFiveK$~nT) and loses by
+$4.2\times$ at $\rMaxK$k ($\ctrlPoolSixFortyK$ versus $\ctrlLmSixFortyK$~nT), and the pooled
+error levels off near $220$~nT instead of continuing to fall --- the same order as the
+$\lawBPool$~nT floor fitted to the real ladder. Because the synthetic experiment contains no
+measurement systematics, no calibration error and no data-pipeline artefacts, that floor can
+only come from the model: it is the envelope inhomogeneity of Fig.~\ref{fig:env} entering
+through the shared-envelope assumption. We note one difference between the control and the
+real data: in the control, partial pooling performs no better than full pooling
+($\ctrlPartSixFortyK$ versus $\ctrlPoolSixFortyK$~nT at $\rMaxK$k), whereas on the real sheets
+freeing $T_2^{*}$ per column improves the RMSE from $\rmsePoolSixFortyK$ to
+$\rmsePartSixFortyK$~nT. The control therefore establishes the existence of a model-driven
+floor, while the attribution of that floor to the relaxation-time constraint rests on the
+real-data comparison; a control that isolates each shared parameter individually is left to
+future work.
 
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{figures/fig3_control.pdf}
@@ -421,9 +443,10 @@ before the measurement.
 
 \emph{Data.} $\nSheets$ sheets of $\nTau$ delays by $\nCols$ fields of DC Ramsey data on an
 NV ensemble; $r$ from $\rMinK$k to $\rMaxK$k repetitions per point; fields in steps of
-$1071.4$~nT. Real traces are used for every reported metric. A frozen split reserves the two
-lowest-budget sheets and the columns that are multiples of seven for evaluation; training
-data never contains a real low-budget trace.
+$1071.4$~nT. Real traces are used for every reported metric, and the neural estimator is
+never trained on a real low-budget trace: its training set is generated synthetically from
+the measured envelope population and the measured noise law, and every performance number
+in Table~\ref{tab:ladder} is evaluated on the real sheets.
 
 \emph{Bounds.} Fisher information computed numerically from Eq.~\eqref{eq:model}, with
 $\partial s_i/\partial\theta$ by central differences. The per-trace free-envelope bound
@@ -443,7 +466,7 @@ the trace's own FFT$+$Rife estimate, spanning $\pm8\muT$. Training minimises cro
 on instrument-anchored synthetic sessions (envelope drawn from the measured population,
 per-column $T_2^{*}$, one shared phase frame per session, shot noise from the measured law,
 blind uniformly distributed fields), with fields restricted to positive values as in the
-experiment. \nSeedsNetSet{} seeds; reported values are the median over seeds.
+experiment, for $\netSteps$ steps per seed. \nSeedsNetSet{} seeds; reported values are the median over seeds.
 
 \emph{Statistics.} RMSE over columns with a bootstrap confidence interval (2000 resamples);
 signed bias; Wilcoxon signed-rank tests between paired estimators on the same traces,

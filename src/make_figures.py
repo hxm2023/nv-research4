@@ -34,6 +34,31 @@ LAB = {"lm_refine": "per-trace LM (free envelope)",
        "net_set": "amortized (single seed)"}
 
 
+
+
+def load_res_nets():
+    """Residual (FFT-anchored) amortized nets - the ones the paper reports."""
+    import os as _os
+    p = "results/blind_res_nets.json"
+    if not _os.path.exists(p):
+        return None
+    d = json.load(open(p))
+    from src.data_pipeline import load_dc
+    ds = load_dc()
+    out = {}
+    for st in sorted({r["steps"] for r in d["runs"]}):
+        rs = [r for r in d["runs"] if r["kind"] == "set" and r["steps"] == st]
+        if not rs:
+            continue
+        ys = []
+        for si, r in enumerate(REP_LEVELS):
+            rms = [np.sqrt(np.mean(((np.array(x["real"][f"sheet{si+1}"]["B_hat"])
+                                     - ds.B_nT)[6:40]) ** 2)) for x in rs]
+            ys.append(float(np.median(rms)))
+        out[st] = (np.array(REP_LEVELS, dtype=float), np.array(ys), len(rs))
+    return out
+
+
 def load():
     a = json.load(open("results/analysis_v2.json"))
     return a
@@ -44,13 +69,19 @@ def fig1(a):
     reps = np.array([int(k[1:]) for k in a["tables"]["cols7_40"]], dtype=float)
     order = np.argsort(reps)
     reps = reps[order]
-    for m in ["lm_refine", "joint_refine", "partial_pool", "net_set_ens"]:
+    for m in ["lm_refine", "joint_refine", "partial_pool"]:
         ys = []
         for k in [f"r{int(r)}" for r in reps]:
             e = a["tables"]["cols7_40"][k].get(m)
             ys.append(e["rmse"] if e else np.nan)
         ax.errorbar(reps, ys, yerr=None, marker="o", ms=3.5, lw=1.2, color=COL[m],
                     label=LAB[m])
+    nets = load_res_nets()
+    if nets:
+        st = max(nets)          # longest-trained nets
+        rr_, yy_, nn = nets[st]
+        ax.plot(rr_, yy_, marker="s", ms=3.5, lw=1.2, color="#9467bd",
+                label=f"amortized network ({nn} seeds)")
     rr = np.logspace(np.log10(4000), np.log10(700000), 200)
     fl = a["floor_law"]["cols7_40"]
     for m, ls in [("lm_refine", "--"), ("joint_refine", ":")]:

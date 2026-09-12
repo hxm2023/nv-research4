@@ -108,24 +108,31 @@ m("nBins", 512, "{:.0f}")
 m("WResid", 8, "{:.0f}")
 m("tauOffSigmaNs", 2.6, "{:.1f}")
 
-# net results (if the residual nets are present)
+# net results: prefer the residual (FFT-anchored) nets, at the largest step count
+# that has at least 5 seeds; fall back to fewer seeds if nothing else is available.
 p = "results/blind_res_nets.json"
-if not os.path.exists(p):
-    m("nSeedsNetSet", 5, "{:.0f}")
-    for r in REPS:
-        m(f"rmseNetSet{SUF[int(r)]}", float("nan"), "{:.0f}")
 if os.path.exists(p):
     d = json.load(open(p))
     Bt = ds.B_nT
-    for kind, tag in [("set", "NetSet"), ("trace", "NetTrace")]:
-        rs = [r for r in d["runs"] if r["kind"] == kind]
-        if not rs:
+    by_steps = {}
+    for run in d["runs"]:
+        if run["kind"] != "set":
             continue
-        m(f"nSeeds{tag}", len(rs), "{:.0f}")
+        by_steps.setdefault(run["steps"], []).append(run)
+    usable = [st for st, rs in by_steps.items() if len(rs) >= 5] or list(by_steps)
+    steps = max(usable) if usable else None
+    if steps is not None:
+        rs = by_steps[steps]
+        m("nSeedsNetSet", len(rs), "{:.0f}")
+        m("netSteps", steps, "{:.0f}")
         for si, r in enumerate(REPS):
             rms = [np.sqrt(np.mean(((np.array(x["real"][f"sheet{si+1}"]["B_hat"]) - Bt)[6:40]) ** 2))
                    for x in rs]
-            m(f"rmse{tag}{SUF[int(r)]}", float(np.median(rms)), "{:.0f}")
+            med = [float(np.median(np.abs(np.array(x["real"][f"sheet{si+1}"]["B_hat"]) - Bt)[6:40]))
+                   for x in rs]
+            m(f"rmseNetSet{SUF[int(r)]}", float(np.median(rms)), "{:.0f}")
+            m(f"medNetSet{SUF[int(r)]}", float(np.median(med)), "{:.0f}")
+        print(f"net macros from steps={steps}, seeds={len(rs)}")
 
 
 # phase-frame circular statistics
@@ -136,6 +143,20 @@ if os.path.exists(pf):
                    ("sheet4", "FortyK"), ("sheet5", "EightyK"), ("sheet6", "OneSixtyK"),
                    ("sheet7", "ThreeTwentyK"), ("sheet8", "SixFortyK")]:
         m(f"phaseConc{tag}", P[k]["circular_concentration"], "{:.3f}")
+
+
+# paired Wilcoxon p-values (cols 7-40)
+W = A.get("wilcoxon_cols7_40", {})
+for r in REPS:
+    row = W.get(f"r{r}", {})
+    for key, tag in [("joint_refine_vs_lm_refine", "JointVsLm"),
+                     ("partial_pool_vs_lm_refine", "PartVsLm"),
+                     ("net_set_ens_vs_lm_refine", "NetVsLm")]:
+        if key in row:
+            p = row[key]["p"]
+            mant, exp = ("%.1e" % p).split("e")
+            out.append("\\newcommand{\\p" + tag + SUF[int(r)] + "}{" + mant
+                       + "\\times10^{" + str(int(exp)) + "}}")
 
 os.makedirs("paper", exist_ok=True)
 with open("paper/numbers.tex", "w") as f:

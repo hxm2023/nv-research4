@@ -214,6 +214,35 @@ def main():
                                 "deliverable, so one column's accumulation time is charged "
                                 "to each estimate; the single-column variant is the "
                                 "external-prior estimator reported separately)"}
+
+    # paired significance tests (provenance for the paper's significance claims)
+    from scipy.stats import wilcoxon
+    tests = {}
+    for si in SHEETS:
+        r = int(REP_LEVELS[si])
+        if si not in methods:
+            continue
+        for a_, b_ in [("joint_refine", "lm_refine"), ("partial_pool", "lm_refine"),
+                       ("net_set_ens", "lm_refine")]:
+            if a_ in methods[si] and b_ in methods[si]:
+                ea = np.abs(methods[si][a_] - Bt)[REGIONS["cols7_40"]]
+                eb = np.abs(methods[si][b_] - Bt)[REGIONS["cols7_40"]]
+                try:
+                    st, p = wilcoxon(ea, eb)
+                except Exception:
+                    p = float("nan")
+                tests.setdefault(f"r{r}", {})[f"{a_}_vs_{b_}"] = {
+                    "p": float(p), "n": int(len(ea)),
+                    "median_a": float(np.median(ea)), "median_b": float(np.median(eb))}
+    res["wilcoxon_cols7_40"] = tests
+    print("=== paired Wilcoxon (cols 7-40, n=34) ===")
+    for r in sorted(tests, key=lambda x: int(x[1:])):
+        row = tests[r]
+        line = f"  r={r[1:]:>7}: "
+        for k, v in row.items():
+            line += f"{k}: p={v['p']:.2e}  "
+        print(line)
+
     json.dump(res, open("results/analysis_v2.json", "w"), indent=2)
     print("\nwrote results/analysis_v2.json")
 

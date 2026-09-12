@@ -1618,5 +1618,167 @@
   "eta": {
     "tau_sum_us": 903.0,
     "accounting": "per-column time (session task: 40 field values are the deliverable, so one column's accumulation time is charged to each estimate; the single-column variant is the external-prior estimator reported separately)"
+  },
+  "wilcoxon_cols7_40": {
+    "r5000": {
+      "joint_refine_vs_lm_refine": {
+        "p": 0.05939454503823072,
+        "n": 34,
+        "median_a": 323.44999999999527,
+        "median_b": 551.6999999999971
+      },
+      "partial_pool_vs_lm_refine": {
+        "p": 0.0921744208964582,
+        "n": 34,
+        "median_a": 346.6499999999978,
+        "median_b": 551.6999999999971
+      },
+      "net_set_ens_vs_lm_refine": {
+        "p": 0.09763269789982587,
+        "n": 34,
+        "median_a": 329.4499999999998,
+        "median_b": 551.6999999999971
+      }
+    },
+    "r10000": {
+      "joint_refine_vs_lm_refine": {
+        "p": 0.001678760047070682,
+        "n": 34,
+        "median_a": 280.2499999999991,
+        "median_b": 373.3000000000011
+      },
+      "partial_pool_vs_lm_refine": {
+        "p": 0.001570128952153027,
+        "n": 34,
+        "median_a": 246.0500000000011,
+        "median_b": 373.3000000000011
+      },
+      "net_set_ens_vs_lm_refine": {
+        "p": 0.07234449649695307,
+        "n": 34,
+        "median_a": 352.5500000000011,
+        "median_b": 373.3000000000011
+      }
+    },
+    "r20000": {
+      "joint_refine_vs_lm_refine": {
+        "p": 0.032772131147794425,
+        "n": 34,
+        "median_a": 119.09999999999673,
+        "median_b": 278.65000000000146
+      },
+      "partial_pool_vs_lm_refine": {
+        "p": 0.009574187686666846,
+        "n": 34,
+        "median_a": 136.54999999999927,
+        "median_b": 278.65000000000146
+      },
+      "net_set_ens_vs_lm_refine": {
+        "p": 0.3257509130053222,
+        "n": 34,
+        "median_a": 157.70000000000437,
+        "median_b": 278.65000000000146
+      }
+    },
+    "r40000": {
+      "joint_refine_vs_lm_refine": {
+        "p": 0.004074234631843865,
+        "n": 34,
+        "median_a": 163.25000000000227,
+        "median_b": 213.9000000000051
+      },
+      "partial_pool_vs_lm_refine": {
+        "p": 1.910841092467308e-05,
+        "n": 34,
+        "median_a": 112.04999999999745,
+        "median_b": 213.9000000000051
+      },
+      "net_set_ens_vs_lm_refine": {
+        "p": 0.0907455695560202,
+        "n": 34,
+        "median_a": 152.19999999999982,
+        "median_b": 213.9000000000051
+      }
+    },
+    "r80000": {
+      "joint_refine_vs_lm_refine": {
+        "p": 0.2415325870970264,
+        "n": 34,
+        "median_a": 167.74999999999636,
+        "median_b": 135.14999999999964
+      },
+      "partial_pool_vs_lm_refine": {
+        "p": 0.14300302835181355,
+        "n": 34,
+        "median_a": 99.70000000000437,
+        "median_b": 135.14999999999964
+      },
+      "net_set_ens_vs_lm_refine": {
+        "p": 0.06958918331656605,
+        "n": 34,
+        "median_a": 187.75000000000182,
+        "median_b": 135.14999999999964
+      }
+    },
+    "r160000": {
+      "joint_refine_vs_lm_refine": {
+        "p": 0.2932030075462535,
+        "n": 34,
+        "median_a": 151.29999999999745,
+        "median_b": 87.99999999999818
+      },
+      "partial_pool_vs_lm_refine": {
+        "p": 0.17912400187924504,
+        "n": 34,
+        "median_a": 93.34999999999673,
+        "median_b": 87.99999999999818
+      },
+      "net_set_ens_vs_lm_refine": {
+        "p": 0.33423195546492934,
+        "n": 34,
+        "median_a": 115.85000000000218,
+        "median_b": 87.99999999999818
+      }
+    },
+    "r320000": {
+      "joint_refine_vs_lm_refine": {
+        "p": 0.0005014829803258181,
+        "n": 34,
+        "median_a": 153.149999999996,
+        "median_b": 67.80000000000109
+      },
+      "partial_pool_vs_lm_refine": {
+        "p": 0.2776345143434571,
+        "n": 34,
+        "median_a": 100.399999999996,
+        "median_b": 67.80000000000109
+      },
+      "net_set_ens_vs_lm_refine": {
+        "p": 0.0008052664691926564,
+        "n": 34,
+        "median_a": 145.65000000000327,
+        "median_b": 67.80000000000109
+      }
+    },
+    "r640000": {
+      "joint_refine_vs_lm_refine": {
+        "p": 1.9931349926079906e-05,
+        "n": 34,
+        "median_a": 122.94999999999709,
+        "median_b": 44.44999999999618
+      },
+      "partial_pool_vs_lm_refine": {
+        "p": 0.004870165605098009,
+        "n": 34,
+        "median_a": 71.5,
+        "median_b": 44.44999999999618
+      },
+      "net_set_ens_vs_lm_refine": {
+        "p": 4.061614163219929e-06,
+        "n": 34,
+        "median_a": 141.00000000000182,
+        "median_b": 44.44999999999618
+      }
+    }
   }
 }
