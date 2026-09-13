@@ -50,7 +50,11 @@ $320$k repetitions. The practical rule that follows is not
 "pool then stop sharing" but "pool over settings you can also constrain
 individually": an instrument's sweep often contains records that a single trace cannot
 identify, and those records corrupt the very shared nuisance that pooling is meant to
-estimate.
+estimate. Both the law and the crossover are conditional: they hold for an
+identifiability-filtered session, and for data whose blind FFT$+$Rife initialisation lands
+inside the refinement window --- a condition we verify on these traces (median
+initialisation error $1.1\times10^{3}$~nT against a $\pm3.2\times10^{3}$~nT window) but
+which an analysis of other data must re-check.
 \end{abstract}
 
 \maketitle
@@ -524,7 +528,16 @@ component: it recovers the budget-dependent strategy of a hand-specified hierarc
 model without that model being hand-specified for this instrument, and it does so with one
 set of weights across the $128\times$ budget range.
 
-Several caveats belong in the same paragraph as these claims. First, all results are for
+The law we report is \emph{conditional} in two ways that we restate here rather than
+leaving to the appendix. It assumes an identifiability-filtered session (Table~\ref{tab:session}
+and the add-back test of Table~\ref{tab:addback} quantify what happens otherwise), and it
+assumes that the blind FFT$+$Rife initialisation of each trace lands inside the refinement
+window --- true for these traces, where the median initialisation error is
+$1.1\times10^{3}$~nT against a $\pm3.2\times10^{3}$~nT window, but not guaranteed for another
+instrument or a different readout. The synthetic recovery tests we ran exercise the estimator
+and the initialisation under the assumed model; they do not by themselves certify the absolute
+field values of these real traces. Several further caveats belong in the same paragraph as
+these claims. First, all results are for
 one instrument, one diamond and one field range; the \emph{form} of Eq.~\eqref{eq:law} is
 general, but $b$ must be measured per instrument and per field range, since it is the
 envelope scatter that sets it. Second, the nominal applied field differs from the measured
