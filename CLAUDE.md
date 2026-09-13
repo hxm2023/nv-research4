@@ -91,3 +91,9 @@ sensitivity-oriented estimation）做 scoop check；(2) 用一个 pilot 实验�
 ## 合规
 
 期刊 AI 使用政策披露；人对论文负责。
+
+## External Review Backend (updated 2026-09-10: codex-mcp = qwen3.8-max)
+
+- **codex MCP/CLI now serves `qwen3.8-max`** via DashScope compatible-mode (provider config in `~/.codex/config.toml`; API key persisted as env var `DASHSCOPE_API_KEY`). The previous gpt-5.4 (yansd666 relay) is disabled (config block kept commented for one-line revert).
+- All `mcp__codex__codex`-based review workflows (research-review / citation-audit / experiment-audit / kill-argument / paper-claim-audit / auto-review-loop / domain-reviewer ...) transparently run on qwen3.8-max — still cross-model (non-Claude), thread semantics unchanged.
+- Troubleshooting: `Missing environment variable: DASHSCOPE_API_KEY` -> restart Claude Code (env set after the current process started). `Arrearage` -> recharge the Aliyun DashScope account. Alternative text-review backend: `llm-chat` MCP (also qwen3.8-max).
