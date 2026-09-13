@@ -103,23 +103,28 @@ def fig1(a, ds):
     ax.axvspan(4000, 8000, color="0.5", alpha=0.07, lw=0)
     rstar = fl["crossover_reps"]
     ax.axvline(rstar, color="k", lw=0.7, alpha=0.55)
-    ax.text(rstar * 1.12, ax.get_ylim()[1] * 0.30,
-            rf"$r^*\!\approx\!{rstar/1e4:.0f}\times10^4$", fontsize=6.5, rotation=90,
-            va="top")
+    ax.annotate(rf"$r^*={rstar/1e4:.0f}\times10^4$", xy=(rstar, 330),
+                xytext=(rstar * 3.4, 430), fontsize=6.5, color="0.15",
+                va="center", ha="left",
+                arrowprops=dict(arrowstyle="-", lw=0.5, color="0.35", shrinkA=1, shrinkB=1))
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_ylabel(r"field RMSE $\delta B$ (nT)")
-    ax.set_ylim(40, 1000)
-    ax.legend(loc="lower left", ncol=1, handlelength=1.6, labelspacing=0.25)
-    ax.text(0.985, 0.05, "measured budget range", transform=ax.transAxes, fontsize=6.2,
-            ha="right", color="0.35")
+    ax.set_ylim(40, 2000)
+    ax.set_xlim(4300, 900000)
+    ax.legend(loc="lower left", ncol=1, handlelength=1.6, labelspacing=0.22,
+              borderaxespad=0.3)
+    ax.text(5600, 1750, "lowest\nbudget", fontsize=6.0, color="0.4", ha="center",
+            va="top")
     # (b) bias
     for m in ["lm_refine", "joint_refine", "partial_pool"]:
         y = [a["tables"]["cols7_40"][f"r{int(r)}"].get(m, {}).get("bias", np.nan)
              for r in reps]
         bx.plot(reps, y, marker=MK[m], ms=3.0, lw=1.1, color=COL[m])
     bx.axhline(0, color="k", lw=0.6)
-    bx.set_yscale("symlog", linthresh=20)
     bx.set_xscale("log")
+    bx.set_xlim(4200, 900000)
+    bx.set_ylim(-90, 230)
+    bx.set_yticks([-50, 0, 50, 100, 150, 200])
     bx.set_xlabel(r"repetitions per $\tau$ point, $r$")
     bx.set_ylabel("bias (nT)", labelpad=1)
     bx.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
@@ -152,7 +157,8 @@ def fig2(a):
         y = [a["tables"]["cols7_40"][f"r{int(r)}"][m]["efficiency"] for r in reps]
         bx.plot(reps, y, marker=MK[m], ms=3, color=COL[m], label=LAB[m])
     bx.axhline(1.0, color="k", lw=0.7)
-    bx.text(reps[0], 1.03, "at its own bound", fontsize=6.5, color="0.3")
+    bx.text(0.03, 1.06, "at its own bound", transform=bx.get_yaxis_transform(),
+            fontsize=6.5, color="0.35", va="bottom")
     bx.set_xscale("log"); bx.set_yscale("log")
     bx.set_xlabel(r"repetitions per $\tau$ point, $r$")
     bx.set_ylabel("RMSE / own bound")
@@ -193,8 +199,12 @@ def fig4():
         if k == 0:
             ax.set_ylabel("columns", fontsize=7.5)
         ax.tick_params(labelsize=6.5)
-        sd = v.std()
-        ax.set_title(rf"$\sigma/\mu={sd/np.abs(v.mean()):.2f}$", fontsize=6.5)
+        if k == 4:  # circular scatter has no meaningful sigma/mu
+            ang = np.exp(1j * v).mean()
+            ax.set_title(rf"$\sigma_c={np.sqrt(-2*np.log(np.abs(ang))):.2f}$ rad",
+                         fontsize=6.5)
+        else:
+            ax.set_title(rf"$\sigma/\mu={v.std()/np.abs(v.mean()):.2f}$", fontsize=6.5)
         if k == 3:
             ax.annotate("bound", xy=(v.max(), 1), xytext=(v.max() - 0.6, 4),
                         fontsize=6, arrowprops=dict(arrowstyle="->", lw=0.5))
