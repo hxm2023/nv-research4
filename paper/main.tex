@@ -532,12 +532,19 @@ estimator's own performance. Fourth, columns $1$--$6$ are excluded from the head
 at low budget they are not identifiable from a single trace by any method we tried, and
 their calibrated treatment belongs to companion work~\cite{L1companion}.
 
-The immediate experimental implication is a scheduling rule. If a target field uncertainty
-is specified, the cheapest protocol is the one whose floor lies below that target: use
-pooled inference and stop adding repetitions once $b_{\rm pool}$ is approached, or switch to
-per-trace inference and continue. If the envelope scatter of the instrument is known, and it
-is measurable in a single high-budget calibration sweep, the whole decision can be made
-before the measurement.
+The attribution result of Table~\ref{tab:attrib} sharpens all three statements into a
+two-step rule. Because the floor comes from the relaxation time and from nothing else in the
+model, the prescription is not "pool or do not pool" but \emph{share only what is genuinely
+common}: share the phase frame and the contrast, which are instrument properties, and leave
+the relaxation time free per field setting as soon as the photon term stops dominating. On
+this instrument that costs one extra parameter per field setting and removes a $100$~nT-class
+bias, and it is what the partial-pooling estimator of Table~\ref{tab:ladder} does. Applying
+that rule gives the scheduling consequence: if a target field uncertainty is specified, the
+cheapest protocol is the one whose floor lies below that target --- pool aggressively while
+photons are scarce, relax the inhomogeneous parameters once the target approaches the floor,
+and stop adding repetitions when the floor is reached. Because the envelope scatter is
+measurable in a single high-budget calibration sweep, the whole decision can be made before
+the measurement.
 
 \section{Methods}
 
