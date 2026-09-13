@@ -44,9 +44,11 @@ estimator structure and of the instrument's envelope inhomogeneity rather than o
 data-analysis pipeline. An amortized neural estimator trained across the whole budget
 range selects its own degree of pooling: without being told the instrument model, it
 attains the best measured precision of any estimator from $80$k to $320$k repetitions and
-stays within $\sim\!15\%$ of the best classical estimator at both ends of the ladder. The crossover sets
-an operationally useful rule: spend photons until the pooled estimator's bias floor is
-reached, then stop sharing.
+stays within $\sim\!15\%$ of the best classical estimator at both ends of the ladder. The floor is attributable: at the
+highest budget, releasing the relaxation time per field setting removes it entirely
+(RMSE $371	o73$~nT), whereas releasing the contrast or the stretch exponent changes nothing,
+so the practical rule is to share only what is genuinely common --- the phase frame and the
+contrast --- and to leave the relaxation time free once photons stop being the limit.
 \end{abstract}
 
 \maketitle
