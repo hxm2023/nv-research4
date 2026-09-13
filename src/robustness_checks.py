@@ -43,6 +43,10 @@ def acf_residuals(tau, y, fit, max_lag=4):
 def pooled_fit(tau, Y, B_init, free=()):
     """Shared-envelope fit; 'free' lists per-column parameters to release."""
     ncol = Y.shape[1]
+    B_init = np.asarray(B_init, dtype=float)
+    bad = ~np.isfinite(B_init)
+    if bad.any():
+        B_init = np.where(bad, 20000.0, B_init)
     W = np.array([max(3 * 1071.4, 0.05 * b) for b in B_init])
 
     def unpack(th):
@@ -84,8 +88,22 @@ def pooled_fit(tau, Y, B_init, free=()):
     else:
         th0 += [5.4]; lo += [2.5]; hi += [15.0]
     best, best_cost = None, np.inf
-    for t2 in ([5.4] if "T2" in free else [4.0, 5.4, 7.0]):
-        th = np.array(th0, dtype=float)
+    # starts: the FFT estimate at several shared relaxation times, plus the per-trace
+    # maximum-likelihood solution, which is reliable at every budget and removes the
+    # initialisation sensitivity of the joint problem
+    starts = [(np.array(th0, dtype=float), t2) for t2 in ([5.4] if "T2" in free
+                                                          else [4.0, 5.4, 7.0])]
+    try:
+        from src.baselines import lm_multistart
+        B_pt = np.array([lm_multistart(tau, Y[:, c], max(500.0, B_init[c] - W[c]),
+                                      min(45000.0, B_init[c] + W[c]), n_starts=9)["B"]
+                         for c in range(ncol)])
+        th_pt = np.array(th0, dtype=float)
+        th_pt[:ncol] = np.clip(B_pt, lo[:ncol], hi[:ncol])
+        starts.append((th_pt, 5.4))
+    except Exception:
+        pass
+    for th, t2 in starts:
         if "T2" not in free:
             th[-1] = t2
         try:
@@ -95,6 +113,9 @@ def pooled_fit(tau, Y, B_init, free=()):
             continue
         if r.cost < best_cost:
             best, best_cost = r, r.cost
+    if best is None:                       # every start raised: fall back to a plain solve
+        best = least_squares(resid, np.array(th0), bounds=(np.array(lo), np.array(hi)),
+                             max_nfev=500 * ncol)
     return best.x[:ncol]
 
 

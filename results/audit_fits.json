@@ -1,0 +1,98 @@
+{
+  "pooled_audit": [
+    {
+      "reps": 5000,
+      "rmse": 454.69938289150315,
+      "n_alloc": 39,
+      "n_active": 39,
+      "dead_params": 0,
+      "lbfgs_median_diff_nT": 8.804743629298173e-06,
+      "hess_cond": 123930678008.19133,
+      "hess_smallest_sv": 8.230827229467721e-08
+    },
+    {
+      "reps": 10000,
+      "rmse": 318.76980475043484,
+      "n_alloc": 39,
+      "n_active": 39,
+      "dead_params": 0,
+      "lbfgs_median_diff_nT": 9.279936421080492e-06,
+      "hess_cond": 123368569097.7336,
+      "hess_smallest_sv": 8.268413167195836e-08
+    },
+    {
+      "reps": 20000,
+      "rmse": 279.4247305034525,
+      "n_alloc": 39,
+      "n_active": 39,
+      "dead_params": 0,
+      "lbfgs_median_diff_nT": 6.32770752417855e-06,
+      "hess_cond": 124052242428.23845,
+      "hess_smallest_sv": 8.222828165511304e-08
+    },
+    {
+      "reps": 40000,
+      "rmse": 147.40949984415624,
+      "n_alloc": 39,
+      "n_active": 39,
+      "dead_params": 0,
+      "lbfgs_median_diff_nT": 2.6762036213767715e-06,
+      "hess_cond": 124062150813.1463,
+      "hess_smallest_sv": 8.222178836210498e-08
+    },
+    {
+      "reps": 80000,
+      "rmse": 114.46567736400426,
+      "n_alloc": 39,
+      "n_active": 39,
+      "dead_params": 0,
+      "lbfgs_median_diff_nT": 1.4183005987433717e-06,
+      "hess_cond": 124119978293.44754,
+      "hess_smallest_sv": 8.218334589579156e-08
+    },
+    {
+      "reps": 160000,
+      "rmse": 98.16986517525983,
+      "n_alloc": 39,
+      "n_active": 39,
+      "dead_params": 0,
+      "lbfgs_median_diff_nT": 1.5523110050708055e-06,
+      "hess_cond": 124146557176.09909,
+      "hess_smallest_sv": 8.21658419408245e-08
+    },
+    {
+      "reps": 320000,
+      "rmse": 85.910037475545,
+      "n_alloc": 39,
+      "n_active": 39,
+      "dead_params": 0,
+      "lbfgs_median_diff_nT": 1.023667209665291e-06,
+      "hess_cond": 124211218525.94519,
+      "hess_smallest_sv": 8.212299671051436e-08
+    },
+    {
+      "reps": 640000,
+      "rmse": 73.11187528710411,
+      "n_alloc": 39,
+      "n_active": 39,
+      "dead_params": 0,
+      "lbfgs_median_diff_nT": 6.06132743996568e-07,
+      "hess_cond": 124137615122.5972,
+      "hess_smallest_sv": 8.217188209162728e-08
+    }
+  ],
+  "synthetic_recovery": {
+    "A_nT": 3624.167019556411,
+    "floor_nT": 2.8738496768085375e-08,
+    "ladder": [
+      6365.683916874212,
+      452.73980162314973,
+      382.9596800755949,
+      343.0490585712373,
+      322.9597107704154,
+      297.4312567890205,
+      426.0326465491949,
+      394.41844326131053
+    ]
+  }
+}

@@ -28,6 +28,13 @@ SUF = {5000: "FiveK", 10000: "TenK", 20000: "TwentyK", 40000: "FortyK",
        640000: "SixFortyK"}
 
 
+def sci(name, val, sig=1):
+    """Emit a LaTeX scientific-notation macro: 6.2 x 10^5."""
+    mant, exp = ("%.*e" % (sig, val)).split("e")
+    out.append("\\newcommand{\\" + name + "}{" + mant + "\\times10^{"
+               + str(int(exp)) + "}}")
+
+
 def get(method, r, key):
     return T[f"r{r}"].get(method, {}).get(key, float("nan"))
 
@@ -59,7 +66,7 @@ m("lawFitLm", fl["lm_refine"]["fit_rms"], "{:.1f}")
 m("lawAPool", fl["joint_refine"]["A_nT"], "{:.1f}")
 m("lawBPool", fl["joint_refine"]["floor_nT"], "{:.1f}")
 m("lawFitPool", fl["joint_refine"]["fit_rms"], "{:.1f}")
-m("crossoverReps", fl["crossover_reps"], "{:.1e}")
+sci("crossoverReps", fl["crossover_reps"])
 m("crossoverRepsRounded", fl["crossover_reps"] / 1e4, "{:.0f}")
 m("boundRatio5k", fl["lm_refine"]["A_nT"] / fl["joint_refine"]["A_nT"] ** 2 * fl["joint_refine"]["A_nT"] / 1, "{:.2f}")
 out.pop()  # drop the awkward expression
@@ -211,10 +218,31 @@ if os.path.exists(st):
     D = json.load(open(st))
     m("lawTFreeA", D["primary_T2_free"]["A"], "{:.1f}")
     m("lawTFreeB", D["primary_T2_free"]["b"], "{:.1f}")
-    m("lawTFreeRstar", D["primary_T2_free"]["rstar"], "{:.2e}")
+    sci("lawTFreeRstar", D["primary_T2_free"]["rstar"])
     m("lawFullA", D["full_sweep_40"]["A"], "{:.1f}")
     m("lawFullB", D["full_sweep_40"]["b"], "{:.1f}")
-    m("lawFullRstar", D["full_sweep_40"]["rstar"], "{:.2e}")
+    sci("lawFullRstar", D["full_sweep_40"]["rstar"])
+
+
+# add-back robustness and the strict identifiability criterion
+ab = "results/addback_experiment.json"
+if os.path.exists(ab):
+    AB = json.load(open(ab))
+    tags = {"n34": "", "n35": "A", "n36": "B", "n37": "C", "n38": "D", "n39": "E", "n40": "F"}
+    for k, suf in tags.items():
+        v = AB["sessions"].get(k)
+        if v:
+            m("addback" + suf + "A", v["A_nT"], "{:.0f}")
+            m("addback" + suf + "B", v["floor_nT"], "{:.0f}")
+            if np.isfinite(v["crossover_reps"]):
+                sci("addback" + suf + "R", v["crossover_reps"])
+            else:
+                out.append("\\newcommand{\\addback" + suf + "R}{---}")
+    st = AB.get("strict33")
+    if st:
+        m("lawStrictA", st["A_nT"], "{:.1f}")
+        m("lawStrictB", st["floor_nT"], "{:.1f}")
+        sci("lawStrictRstar", st["crossover_reps"])
 
 os.makedirs("paper", exist_ok=True)
 with open("paper/numbers.tex", "w") as f:
