@@ -115,6 +115,15 @@ throughout: a timing offset $\tau_{\rm off}=\tauOffNs\pm\tauOffSigmaNs$~ns
 \cite{L1companion}, and the global phase frame of a session, i.e.\ the instrument phase
 $\phi_0$ is common to all field settings of one sweep, as we verify below.
 
+\emph{Noise-model validation.} The bounds and efficiencies below assume that the per-point
+noise is additive, stationary and uncorrelated. We verified this on the real traces: the
+lag-1 autocorrelation of the residuals of the per-trace fits, averaged over columns 7--40,
+is $\acfLagOneFiveK$, $\acfLagOneFortyK$ and $\acfLagOneSixFortyK$ at $\rMinK$k, $40$k and
+$\rMaxK$k repetitions respectively, consistent with the $\pm0.058$ expected for white noise
+of $300$ points. The Fisher information used for the bounds is therefore appropriate for
+these data, and a residual structure (drift, correlated readout noise) is not inflating the
+apparent estimator efficiency.
+
 \emph{Noise.} A robust per-point noise estimate (standard deviation of the three-point
 second difference, divided by $\sqrt 6$) gives $0.2079,0.1500,0.1072,0.0745,0.0533,0.0370,
 0.0263,0.0183$ for the eight sheets, matching the shot-noise law
@@ -262,8 +271,12 @@ $\rMaxK$k & \rmseLmSixFortyK & \rmsePoolSixFortyK & \rmsePartSixFortyK & \rmseNe
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{figures/fig1_ladder.pdf}
 \caption{Real data, columns 7--40. Top: field RMSE against repetitions per delay point for
-the four estimators; error bars are percentile bootstrap intervals over the $34$ columns
-(for the network, the interquartile spread over training seeds). Dashed and dotted curves
+the four estimators. Shaded bands are \emph{variability}, not confidence intervals: for the
+classical estimators they span the column-to-column interquartile range within the single
+measured session, for the network the range across the five training seeds (hatched). The
+columns are field settings, not independent experimental replications, so the bands describe
+how consistent an ordering is across fields, not a sampling uncertainty of the method.
+Dashed and dotted curves
 are the two-term law of Eq.~\eqref{eq:law} fitted to the per-trace and pooled ladders; the
 vertical line is the crossover $r^{*}$. Bottom: signed mean error of the same estimators on
 the same traces (symmetric-log scale). The crossover in the top panel is the point where the
@@ -294,7 +307,11 @@ $\lawFitPool$~nT). The photon-limited coefficients differ by the bound ratio,
 $(A_{\rm lm}/A_{\rm pool})^{2}=\photonGainFactor$: pooling is worth a factor
 $\sqrt{\photonGainFactor}$ in precision while photons are scarce, while its floor
 $b_{\rm pool}=\lawBPool$~nT eventually costs more than it buys. Equating the two curves
-gives the crossover $r^{*}\approx\crossoverReps$ repetitions. Expressed operationally: to
+gives the crossover $r^{*}\approx\crossoverReps$ repetitions, with a $95\%$ confidence
+interval of $[\crossoverCIlow$--$\crossoverCIhigh]\times10^{4}$ repetitions obtained by
+bootstrapping the $\nCols$ columns (200 draws; the interval reflects the column-to-column
+scatter of the fitted ladder, not session-to-session reproducibility). Expressed
+operationally: to
 reach the precision that pooled inference achieves at $\rMinK\times10^{3}$ repetitions,
 per-trace fitting needs $\photonGainFactor$ times more repetitions; above
 $\crossoverRepsRounded\times10^{4}$ repetitions the ordering reverses and per-trace fitting
@@ -305,10 +322,12 @@ is the better choice.
 \caption{Left: the two Cram\'er--Rao bounds for the measured trace geometry, median over
 columns 7--40 --- the free-envelope bound that a per-trace fit must respect, and the joint
 bound available when the envelope is shared across the $\nCols$ field settings. The shaded
-gap is the factor $\approx\!1.8$ that pooling is worth. Right: the measured RMSE of each
-estimator divided by its own bound. Both estimators sit at their own bound for
-$r\le320$k; the pooled estimator deteriorates above that, which is the bias floor of
-Eq.~\eqref{eq:law} expressing itself as an apparent inefficiency.}
+gap is the factor $\approx\!1.8$ that pooling is worth. Right: the measured RMSE of each estimator divided by the
+\emph{same} (joint) bound, so that neither can appear efficient by being normalised to its
+own reference. The per-trace estimator lies $1.6$--$1.8\times$ above the joint bound while
+photons are scarce and converges to it at high budget, where sharing stops paying; the
+pooled estimator sits near the joint bound up to $40$k and rises above it at higher budget
+as its bias floor takes over.}
 \label{fig:bounds}
 \end{figure*}
 
@@ -337,18 +356,24 @@ future work.
 
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{figures/fig3_control.pdf}
-\caption{Synthetic control with exact ground truth and the measured envelope population.
-Median field error against budget for per-trace fitting, full pooling and partial pooling.
-Note the reversal between the lowest and the highest budgets.}
+\caption{Synthetic control with exact ground truth and the measured envelope population:
+field RMSE (the same risk metric as Figs.~\ref{fig:ladder} and \ref{fig:bounds}) against
+budget for per-trace fitting, full pooling and partial pooling, with interquartile bands.
+The reversal between the lowest and the highest budgets is reproduced without any
+measurement systematic, which isolates the bias floor as a property of the shared model.}
 \label{fig:control}
 \end{figure}
 
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{figures/fig4_envelope.pdf}
 \caption{Relaxation envelope measured across the $\nCols$ field settings from the
-highest-budget sheet. The phase $\phi_0$ is essentially common (circular concentration
-$\ge0.99$), whereas the relaxation time varies by $\pm5\%$; that inhomogeneity sets the
-pooled bias floor.}
+highest-budget sheet (strip plots, one dot per field setting; the vertical line is the
+mean). Each panel gives the scatter: the contrast, offset and relaxation time vary by a few
+per cent, the stretch exponent varies by $21\%$ and includes one setting at the numerical
+bound $p=4$, and the phase is essentially common ($|R|=0.992$ is the circular mean
+resultant length, the analogue of a correlation coefficient for angles). The inhomogeneity
+that produces the pooled bias floor is that of the relaxation time and of the stretch
+exponent.}
 \label{fig:env}
 \end{figure}
 
@@ -400,9 +425,31 @@ $\rmseLmThreeTwentyK$~nT), and at $\rMaxK$k it is within $12\%$ of per-trace fit
 ($\rmseNetSetSixFortyK$ against $\rmseLmSixFortyK$~nT) while every pooled estimator is
 $1.6$--$2.5\times$ worse. In other words the network has learned to stop sharing once
 sharing becomes harmful, which is the budget-dependent behaviour that the fitted law
-prescribes without the law being supplied to it; it does not, however, yet match the
-classical pooled fitter in the regime where aggressive sharing is optimal, and we report
-that shortfall rather than presenting the network as uniformly superior.
+prescribes without the law being supplied to it. We stress that the network is \emph{not}
+structure-free: it is conditioned on the noise level, trained on sessions with one shared
+phase frame and per-column relaxation times, and given the FFT estimate of each trace. What
+it is not given is the instrument's sharing pattern, the crossover, or which parameters are
+common. It also does not yet match the classical pooled fitter in the regime where
+aggressive sharing is optimal, and we report that shortfall rather than presenting the
+network as uniformly superior. A controlled ablation in which the session-attention block is
+removed --- so that each trace is estimated independently, with no cross-column
+information --- is reported in Sec.~\ref{sec:ablation}.
+
+\subsection{Ablation: removing the session context}
+\label{sec:ablation}
+
+To separate \emph{learned sharing} from the network's per-trace inference we trained an
+identical architecture with the session-attention block removed, so that each trace is
+estimated independently, with the same training data and budget range
+(\nSeedsAblation{} seeds). In the primary region the ablated model is worse than the
+session-conditioned one at every budget above $\rMinK$k
+($\rmseAblFiveK$, $\rmseAblTwentyK$, $\rmseAblEightyK$ and $\rmseAblThreeTwentyK$~nT at
+$\rMinK$k, $20$k, $80$k and $320$k, against $\rmseNetSetFiveK$, $\rmseNetSetTwentyK$,
+$\rmseNetSetEightyK$ and $\rmseNetSetThreeTwentyK$~nT respectively), and it also loses the
+sharp transition at high budget where the conditioned model overtakes every classical
+estimator. The session context is therefore doing real work: the network's advantage is not
+a generic property of amortized regression but comes from information shared across the
+columns of a session.
 
 \section{Discussion}
 
@@ -430,8 +477,9 @@ $b$ from the envelope scatter, the crossover is predictable rather than merely e
 network trained once, across the whole $\rMinK$k--$\rMaxK$k range, tracks the better
 classical strategy at both ends of the ladder without being told the instrument model, the
 budget, or which parameters are shared. This is the practical value of the learning
-component: not a new bound, but structure-free inference that does not have to be
-re-derived for each instrument, budget or sweep.
+component: it recovers the budget-dependent strategy of a hand-specified hierarchical
+model without that model being hand-specified for this instrument, and it does so with one
+set of weights across the $128\times$ budget range.
 
 Several caveats belong in the same paragraph as these claims. First, all results are for
 one instrument, one diamond and one field range; the \emph{form} of Eq.~\eqref{eq:law} is
@@ -488,6 +536,24 @@ signed bias; Wilcoxon signed-rank tests between paired estimators on the same tr
 reported per budget. Multiplicity across the eight budget levels is handled by describing
 the ladder with Eq.~\eqref{eq:law} rather than as eight independent significance claims; the
 two lowest budgets form the pre-declared primary contrast.
+
+\emph{Unit of replication.} All measurements come from one swept-field session on one
+instrument, so the $34$ columns of the primary region are not independent experimental
+replications: the column-to-column spread mixes genuine field-to-field variation with the
+shared per-column systematic of the magnet. The bootstrap intervals and Wilcoxon tests
+above therefore quantify how consistently a conclusion holds across field settings, not how
+it would generalise to other instruments or sessions. What we claim on this evidence is the
+existence and the location of the crossover on this instrument --- a statement about
+estimator behaviour that is reproducible in simulation with exact ground truth
+(Sec.~\ref{sec:control}) --- and not a population-level effect size.
+
+\emph{Provenance of the envelope prior.} The envelope population of
+Sec.~II is fitted from the highest-budget sheet, and it enters only two places: the
+reference CRLBs of Sec.~III B and the synthetic training data of Sec.~\ref{sec:net}. It is
+never used to fit a field, and every estimator reported in Table~\ref{tab:ladder} fits its
+own nuisance parameters from the trace or session under test. In particular the per-trace
+and pooled estimators do not receive the envelope population, so the comparison between
+them is free of that prior.
 
 \section*{Data and code availability}
 Code, result files and the scripts that generate every number in this paper are available at

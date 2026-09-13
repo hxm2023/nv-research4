@@ -79,7 +79,10 @@ def main(seed=0, n_rep=3):
         row = {"reps": int(reps), "sigma": float(sig)}
         for k, v in errs.items():
             e = np.concatenate(v)
-            row[k] = {"median": float(np.median(e)), "mean": float(np.mean(e))}
+            row[k] = {"median": float(np.median(e)), "mean": float(np.mean(e)),
+                      "rmse": float(np.sqrt(np.mean(e ** 2))),
+                      "q25": float(np.percentile(e, 25)),
+                      "q75": float(np.percentile(e, 75))}
         rows.append(row)
         print(f"r={reps:>7}: lm med={row['lm']['median']:7.1f} | "
               f"pool_full med={row['pool_full']['median']:7.1f} | "

@@ -78,23 +78,26 @@ def fig1(a, ds):
     reps = np.array(sorted(int(k[1:]) for k in a["tables"]["cols7_40"]), float)
     fig, (ax, bx) = plt.subplots(2, 1, figsize=(3.4, 4.1), sharex=True,
                                  gridspec_kw={"height_ratios": [2.1, 1.0], "hspace": 0.08})
-    # (a) ladder
+    # (a) ladder. Bands are VARIABILITY, not confidence intervals: for the classical
+    # estimators they are the column-to-column interquartile range of the same session,
+    # for the network the spread across training seeds. Encoded separately.
     for m in ["lm_refine", "joint_refine", "partial_pool"]:
-        y, elo, ehi = [], [], []
+        y, qlo, qhi = [], [], []
         for r in reps:
             e = a["tables"]["cols7_40"][f"r{int(r)}"].get(m)
             if not e:
-                y.append(np.nan); elo.append(np.nan); ehi.append(np.nan); continue
+                y.append(np.nan); qlo.append(np.nan); qhi.append(np.nan); continue
             y.append(e["rmse"])
-            elo.append(e["rmse"] - e["rmse_ci"][0]); ehi.append(e["rmse_ci"][1] - e["rmse"])
-        ax.errorbar(reps, y, yerr=[elo, ehi], marker=MK[m], ms=3.2, lw=1.1, color=COL[m],
-                    capsize=1.6, elinewidth=0.7, label=LAB[m])
+            qlo.append(e["rmse_ci"][0]); qhi.append(e["rmse_ci"][1])
+        ax.fill_between(reps, qlo, qhi, color=COL[m], alpha=0.12, lw=0)
+        ax.plot(reps, y, marker=MK[m], ms=3.2, lw=1.1, color=COL[m], label=LAB[m])
     net = res_net_ladder(ds)
     if net:
         rr_, yy_, lo_, hi_, n_ = net
-        ax.errorbar(rr_, yy_, yerr=[yy_ - lo_, hi_ - yy_], marker="D", ms=3.0, lw=1.1,
-                    color=NETC, capsize=1.6, elinewidth=0.7,
-                    label=f"amortized network ({n_} seeds)")
+        ax.fill_between(rr_, lo_, hi_, color=NETC, alpha=0.18,
+                        edgecolor="none")
+        ax.plot(rr_, yy_, marker="D", ms=3.0, lw=1.1, color=NETC,
+                label=f"amortized network ({n_} seeds)")
     rr = np.logspace(np.log10(4000), np.log10(700000), 200)
     fl = a["floor_law"]["cols7_40"]
     for m, ls in [("lm_refine", "--"), ("joint_refine", ":")]:
@@ -153,17 +156,21 @@ def fig2(a):
                 arrowprops=dict(arrowstyle="<->", lw=0.7, color="0.3"))
     ax.text(reps[0] * 1.15, np.sqrt(np.asarray(free[0]) * np.asarray(joint[0])), "1.8x",
             fontsize=7, color="0.25")
+    # both estimators divided by the SAME (joint) bound: a common absolute reference,
+    # so an estimator cannot look efficient merely by being normalised to a loose bound
     for m in ["lm_refine", "joint_refine"]:
-        y = [a["tables"]["cols7_40"][f"r{int(r)}"][m]["efficiency"] for r in reps]
+        y = [a["tables"]["cols7_40"][f"r{int(r)}"][m]["rmse"]
+             / a["tables"]["cols7_40"][f"r{int(r)}"]["joint_refine"]["crlb_own"]
+             for r in reps]
         bx.plot(reps, y, marker=MK[m], ms=3, color=COL[m], label=LAB[m])
     bx.axhline(1.0, color="k", lw=0.7)
-    bx.text(0.03, 1.06, "at its own bound", transform=bx.get_yaxis_transform(),
+    bx.text(0.03, 1.05, "joint CRB", transform=bx.get_yaxis_transform(),
             fontsize=6.5, color="0.35", va="bottom")
     bx.set_xscale("log"); bx.set_yscale("log")
     bx.set_xlabel(r"repetitions per $\tau$ point, $r$")
-    bx.set_ylabel("RMSE / own bound")
+    bx.set_ylabel("RMSE / joint bound")
     bx.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
-    bx.legend(loc="upper left")
+    bx.legend(loc="lower left")
     fig.tight_layout()
     fig.savefig(f"{OUT}/fig2_bounds.pdf"); fig.savefig(f"{OUT}/fig2_bounds.png")
     plt.close(fig)
@@ -176,11 +183,15 @@ def fig3():
     for key, m, lab in [("lm", "lm_refine", "per-trace LM"),
                         ("pool_full", "joint_refine", "pooled (shared $T_2^*$)"),
                         ("pool_partial", "partial_pool", "pooled (per-column $T_2^*$)")]:
-        ax.plot(reps, [r[key]["median"] for r in d["rows"]], marker=MK[m], ms=3.2,
-                color=COL[m], label=lab)
+        y = [r[key].get("rmse", r[key]["median"]) for r in d["rows"]]
+        q25 = np.array([r[key].get("q25", np.nan) for r in d["rows"]], float)
+        q75 = np.array([r[key].get("q75", np.nan) for r in d["rows"]], float)
+        if np.isfinite(q25).all() and np.isfinite(q75).all():
+            ax.fill_between(reps, q25, q75, color=COL[m], alpha=0.12, edgecolor="none")
+        ax.plot(reps, y, marker=MK[m], ms=3.2, color=COL[m], label=lab)
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlabel(r"repetitions per $\tau$ point, $r$")
-    ax.set_ylabel(r"median $|\delta B|$ (nT)")
+    ax.set_ylabel(r"field RMSE $\delta B$ (nT)")
     ax.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
     ax.legend(loc="lower left")
     fig.savefig(f"{OUT}/fig3_control.pdf"); fig.savefig(f"{OUT}/fig3_control.png")
@@ -191,23 +202,27 @@ def fig4():
     env = np.array(json.load(open("results/envelope_sheet8.json"))["env_sheet8"])
     names = [r"$A$ (contrast)", r"$C$ (offset)", r"$T_2^*$ ($\mu$s)",
              r"$p$ (stretch)", r"$\phi_0$ (rad)"]
-    fig, axes = plt.subplots(1, 5, figsize=(6.9, 1.75))
+    rng = np.random.default_rng(0)
+    fig, axes = plt.subplots(1, 5, figsize=(6.9, 1.6))
     for k, (ax, nm) in enumerate(zip(axes, names)):
         v = env[:, k]
-        ax.hist(v, bins=11, color="#4c72b0", alpha=0.85, edgecolor="white", linewidth=0.3)
+        ax.scatter(v, rng.uniform(-0.25, 0.25, len(v)), s=6, color="#4c72b0",
+                   alpha=0.8, linewidths=0)
+        ax.axvline(v.mean(), color="k", lw=0.6, alpha=0.5)
+        ax.set_yticks([])
         ax.set_xlabel(nm, fontsize=7.5)
-        if k == 0:
-            ax.set_ylabel("columns", fontsize=7.5)
         ax.tick_params(labelsize=6.5)
-        if k == 4:  # circular scatter has no meaningful sigma/mu
+        ax.set_ylim(-0.6, 0.6)
+        if k == 4:
             ang = np.exp(1j * v).mean()
-            ax.set_title(rf"$\sigma_c={np.sqrt(-2*np.log(np.abs(ang))):.2f}$ rad",
-                         fontsize=6.5)
+            ax.set_title(rf"$|R|={np.abs(ang):.3f}$", fontsize=6.5)
         else:
             ax.set_title(rf"$\sigma/\mu={v.std()/np.abs(v.mean()):.2f}$", fontsize=6.5)
         if k == 3:
-            ax.annotate("bound", xy=(v.max(), 1), xytext=(v.max() - 0.6, 4),
-                        fontsize=6, arrowprops=dict(arrowstyle="->", lw=0.5))
+            n_sat = int((v >= 3.99).sum())
+            ax.annotate(f"{n_sat} at bound", xy=(v.max(), 0.28),
+                        xytext=(v.max() - 1.5, 0.46), fontsize=6,
+                        arrowprops=dict(arrowstyle="->", lw=0.5))
     fig.tight_layout()
     fig.savefig(f"{OUT}/fig4_envelope.pdf"); fig.savefig(f"{OUT}/fig4_envelope.png")
     plt.close(fig)
@@ -231,6 +246,14 @@ def fig5():
             band_hi.append(rmse * np.sqrt(r * (tau_sum + 600)))
         ax.fill_between(reps, band_lo, band_hi, color=COL[m], alpha=0.15, lw=0)
         ax.plot(reps, base, ls, marker=MK[m], ms=3, color=COL[m], label=LAB[m])
+    net = res_net_ladder(ds)
+    if net:
+        rr_, yy_, lo_, hi_, n_ = net
+        tt = np.sqrt(rr_ * (tau_sum + 300))
+        ax.plot(rr_, np.array(yy_) * tt, color=NETC, marker="D", ms=3,
+                label="amortized network")
+        ax.fill_between(rr_, np.array(lo_) * tt, np.array(hi_) * tt,
+                        color=NETC, alpha=0.18, edgecolor="none")
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_xlabel(r"repetitions per $\tau$ point, $r$")
     ax.set_ylabel(r"$\eta=\delta B\sqrt{t_{\rm total}}$  (nT$\sqrt{\mu{\rm s}}$)")

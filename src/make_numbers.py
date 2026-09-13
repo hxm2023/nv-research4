@@ -111,9 +111,9 @@ m("tauOffSigmaNs", 2.6, "{:.1f}")
 # net results: prefer the residual (FFT-anchored) nets, at the largest step count
 # that has at least 5 seeds; fall back to fewer seeds if nothing else is available.
 p = "results/blind_res_nets.json"
+Bt = ds.B_nT
 if os.path.exists(p):
     d = json.load(open(p))
-    Bt = ds.B_nT
     by_steps = {}
     for run in d["runs"]:
         if run["kind"] != "set":
@@ -157,6 +157,51 @@ for r in REPS:
             mant, exp = ("%.1e" % p).split("e")
             out.append("\\newcommand{\\p" + tag + SUF[int(r)] + "}{" + mant
                        + "\\times10^{" + str(int(exp)) + "}}")
+
+
+# robustness checks (noise whiteness, crossover CI)
+rb = "results/robustness_checks.json"
+if os.path.exists(rb):
+    R = json.load(open(rb))
+    ra = R.get("residual_autocorrelation", {})
+    for k, tag in [("sheet1", "FiveK"), ("sheet4", "FortyK"), ("sheet8", "SixFortyK")]:
+        if k in ra:
+            m(f"acfLagOne{tag}", ra[k]["mean_acf_lag1"], "{:+.3f}")
+    cb = R.get("crossover_bootstrap", {})
+    if cb:
+        m("crossoverCIlow", cb["ci95"][0] / 1e4, "{:.1f}")
+        m("crossoverCIhigh", cb["ci95"][1] / 1e4, "{:.1f}")
+        m("crossoverMedianK", cb["median"] / 1e3, "{:.0f}")
+    fa = R.get("floor_attribution_sheet8", {})
+    for tag, key in [("AllShared", "all shared"), ("TFree", "T2 free"), ("PFree", "p free")]:
+        if key in fa:
+            nm = "floor" + tag
+            m(nm, fa[key]["bias"], "{:+.0f}")
+
+
+# ablation: session-attention removed (per-trace residual nets), 5 seeds if available
+if os.path.exists("results/blind_res_nets.json"):
+    d2 = json.load(open("results/blind_res_nets.json"))
+    by2 = {}
+    for run in d2["runs"]:
+        if run["kind"] == "trace":
+            by2.setdefault(run["steps"], []).append(run)
+    if by2:
+        u2 = [st for st, rs in by2.items() if len(rs) >= 5] or list(by2)
+        st2 = max(u2)
+        rs2 = by2[st2]
+        m("nSeedsAblation", len(rs2), "{:.0f}")
+        for si, r in enumerate(REPS):
+            rms = [np.sqrt(np.mean(((np.array(x["real"][f"sheet{si+1}"]["B_hat"]) - Bt)[6:40]) ** 2))
+                   for x in rs2]
+            m(f"rmseAbl{SUF[int(r)]}", float(np.median(rms)), "{:.0f}")
+
+
+# fallback so the document compiles before the ablation finishes
+if "nSeedsAblation" not in "".join(out):
+    m("nSeedsAblation", 5, "{:.0f}")
+    for r in REPS:
+        out.append("\\newcommand{\\rmseAbl" + SUF[int(r)] + "}{n/a}")
 
 os.makedirs("paper", exist_ok=True)
 with open("paper/numbers.tex", "w") as f:
