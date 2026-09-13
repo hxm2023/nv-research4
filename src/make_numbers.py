@@ -29,10 +29,10 @@ SUF = {5000: "FiveK", 10000: "TenK", 20000: "TwentyK", 40000: "FortyK",
 
 
 def sci(name, val, sig=1):
-    """Emit a LaTeX scientific-notation macro: 6.2 x 10^5."""
+    """Emit a LaTeX scientific-notation macro usable in text or math mode."""
     mant, exp = ("%.*e" % (sig, val)).split("e")
-    out.append("\\newcommand{\\" + name + "}{" + mant + "\\times10^{"
-               + str(int(exp)) + "}}")
+    out.append("\\newcommand{\\" + name + "}{\\ensuremath{" + mant
+               + "\\times10^{" + str(int(exp)) + "}}}")
 
 
 def get(method, r, key):
