@@ -167,7 +167,10 @@ $\rMinK$k repetitions these are $\crlbFreeFiveK$~nT (free, per trace) and
 $\crlbJointFiveK$~nT (joint, $\nCols$ columns). The ratio
 $\sigma_B^{\rm free}/\sigma_B^{\rm joint}\approx1.8$ is set by the fringe geometry, namely
 the number of oscillations, the decay and the sampling, and is essentially independent of
-the photon budget.
+the photon budget (Fig.~\ref{fig:bounds}, left panel). Because the ratio is set by the trace
+geometry, it neither grows nor shrinks with the number of repetitions --- which is why the
+strategy choice below is decided by the competition between this gap and the bias floor,
+not by the gap alone.
 
 The scientific content of this paper is what happens when these bounds are confronted with
 real estimators on real data, including the fact that the shared-envelope model is not
@@ -258,10 +261,14 @@ $\rMaxK$k & \rmseLmSixFortyK & \rmsePoolSixFortyK & \rmsePartSixFortyK & \rmseNe
 
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{figures/fig1_ladder.pdf}
-\caption{Field RMSE against repetitions per delay point, real data, columns 7--40.
-Markers are the measured estimators; dashed and dotted lines are the two-term law of
-Eq.~\eqref{eq:law} fitted to the per-trace and pooled ladders. The vertical line marks the
-crossover $r^{*}$.}
+\caption{Real data, columns 7--40. Top: field RMSE against repetitions per delay point for
+the four estimators; error bars are percentile bootstrap intervals over the $34$ columns
+(for the network, the interquartile spread over training seeds). Dashed and dotted curves
+are the two-term law of Eq.~\eqref{eq:law} fitted to the per-trace and pooled ladders; the
+vertical line is the crossover $r^{*}$. Bottom: signed mean error of the same estimators on
+the same traces (symmetric-log scale). The crossover in the top panel is the point where the
+pooled estimators' growing bias, visible in the bottom panel, overtakes their bound
+advantage. The shaded strip marks the lowest measured budget.}
 \label{fig:ladder}
 \end{figure}
 
@@ -269,7 +276,7 @@ crossover $r^{*}$.}
 
 Table~\ref{tab:ladder} also shows the reversal: above $\sim\!80$k repetitions the pooled
 estimator stops improving and is overtaken by per-trace fitting. The reason is visible in
-the estimator bias (Fig.~\ref{fig:bias}). The per-trace bias stays within
+the estimator bias (lower panel of Fig.~\ref{fig:ladder}). The per-trace bias stays within
 $\pm\biasLmEightyK$~nT of zero across the whole ladder, whereas the pooled estimator carries
 a positive bias of order $100$~nT from $80$k repetitions upward
 ($\biasPoolEightyK$~nT at $80$k, $\biasPoolSixFortyK$~nT at $\rMaxK$k): once the statistical
@@ -293,13 +300,17 @@ per-trace fitting needs $\photonGainFactor$ times more repetitions; above
 $\crossoverRepsRounded\times10^{4}$ repetitions the ordering reverses and per-trace fitting
 is the better choice.
 
-\begin{figure}[t]
-\includegraphics[width=\columnwidth]{figures/fig2_bias.pdf}
-\caption{Signed mean error against photon budget for the three classical estimators, real
-data, columns 7--40. The pooled estimators acquire a growing bias while per-trace fitting
-stays consistent, which is the mechanism behind the crossover of Fig.~\ref{fig:ladder}.}
-\label{fig:bias}
-\end{figure}
+\begin{figure*}[t]
+\includegraphics[width=\textwidth]{figures/fig2_bounds.pdf}
+\caption{Left: the two Cram\'er--Rao bounds for the measured trace geometry, median over
+columns 7--40 --- the free-envelope bound that a per-trace fit must respect, and the joint
+bound available when the envelope is shared across the $\nCols$ field settings. The shaded
+gap is the factor $\approx\!1.8$ that pooling is worth. Right: the measured RMSE of each
+estimator divided by its own bound. Both estimators sit at their own bound for
+$r\le320$k; the pooled estimator deteriorates above that, which is the bias floor of
+Eq.~\eqref{eq:law} expressing itself as an apparent inefficiency.}
+\label{fig:bounds}
+\end{figure*}
 
 \subsection{Mechanism: a bias floor set by envelope inhomogeneity}
 \label{sec:control}

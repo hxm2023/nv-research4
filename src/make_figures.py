@@ -1,10 +1,15 @@
 """Publication figures for the L5 paper (reads only the result JSONs).
 
-fig1_ladder.pdf     deltaB(r) with the fitted floor law and the crossover
-fig2_bias.pdf       estimator bias vs photon budget (the mechanism)
-fig3_control.pdf    synthetic control with exact ground truth
-fig4_envelope.pdf   measured envelope inhomogeneity across the 40 field columns
-fig5_eta.pdf        eta(r) with declared per-point overhead scenarios
+Design rules: revtex single-column width (8.6 cm), 8-9 pt type, no in-figure titles
+(the caption carries that), error bars wherever a confidence interval exists, log-log
+where the physics is a power law.
+
+fig1_ladder     two panels: (a) deltaB(r) with bootstrap CIs + fitted floor law +
+                crossover; (b) estimator bias(r) - the mechanism, same x axis
+fig2_bounds     the two Cramer-Rao bounds (free vs joint) and measured efficiencies
+fig3_control    synthetic control with exact ground truth
+fig4_envelope   measured envelope inhomogeneity across the 40 field columns
+fig5_eta        eta(r) with declared per-point overhead scenarios
 """
 from __future__ import annotations
 
@@ -16,122 +21,162 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.ticker import FuncFormatter
 
 sys.path.insert(0, ".")
 from src.data_pipeline import REP_LEVELS, load_dc
 
 OUT = "paper/figures"
-plt.rcParams.update({"font.size": 9, "axes.labelsize": 9, "legend.fontsize": 8,
-                     "xtick.labelsize": 8, "ytick.labelsize": 8, "figure.dpi": 150,
-                     "savefig.bbox": "tight", "axes.grid": True, "grid.alpha": 0.25})
+plt.rcParams.update({
+    "font.size": 8, "axes.labelsize": 8, "legend.fontsize": 7,
+    "xtick.labelsize": 7, "ytick.labelsize": 7, "figure.dpi": 200,
+    "savefig.bbox": "tight", "axes.grid": True, "grid.alpha": 0.25,
+    "grid.linewidth": 0.4, "axes.linewidth": 0.6, "lines.linewidth": 1.2,
+    "legend.frameon": False, "axes.titlepad": 3,
+})
 
-COL = {"lm_refine": "#1f77b4", "joint_refine": "#d62728", "partial_pool": "#2ca02c",
-       "net_set_ens": "#9467bd", "net_set": "#c5b0d5"}
-LAB = {"lm_refine": "per-trace LM (free envelope)",
-       "joint_refine": "session-pooled (shared envelope)",
-       "partial_pool": "session-pooled (per-column $T_2^*$)",
-       "net_set_ens": "amortized, session-conditioned",
-       "net_set": "amortized (single seed)"}
-
-
-
-
-def load_res_nets():
-    """Residual (FFT-anchored) amortized nets - the ones the paper reports."""
-    import os as _os
-    p = "results/blind_res_nets.json"
-    if not _os.path.exists(p):
-        return None
-    d = json.load(open(p))
-    from src.data_pipeline import load_dc
-    ds = load_dc()
-    out = {}
-    for st in sorted({r["steps"] for r in d["runs"]}):
-        rs = [r for r in d["runs"] if r["kind"] == "set" and r["steps"] == st]
-        if not rs:
-            continue
-        ys = []
-        for si, r in enumerate(REP_LEVELS):
-            rms = [np.sqrt(np.mean(((np.array(x["real"][f"sheet{si+1}"]["B_hat"])
-                                     - ds.B_nT)[6:40]) ** 2)) for x in rs]
-            ys.append(float(np.median(rms)))
-        out[st] = (np.array(REP_LEVELS, dtype=float), np.array(ys), len(rs))
-    return out
+COL = {"lm_refine": "#1f77b4", "joint_refine": "#d62728", "partial_pool": "#2ca02c"}
+MK = {"lm_refine": "o", "joint_refine": "s", "partial_pool": "^"}
+LAB = {"lm_refine": "per-trace LM",
+       "joint_refine": "pooled (shared envelope)",
+       "partial_pool": "pooled (per-column $T_2^*$)"}
+NETC = "#8b5cf6"
 
 
-def load():
+def load_all():
     a = json.load(open("results/analysis_v2.json"))
     return a
 
 
-def fig1(a):
-    fig, ax = plt.subplots(figsize=(3.4, 2.7))
-    reps = np.array([int(k[1:]) for k in a["tables"]["cols7_40"]], dtype=float)
-    order = np.argsort(reps)
-    reps = reps[order]
+def res_net_ladder(ds):
+    """5-seed residual nets at the largest step count (the paper's network numbers)."""
+    p = "results/blind_res_nets.json"
+    if not os.path.exists(p):
+        return None
+    d = json.load(open(p))
+    by = {}
+    for r in d["runs"]:
+        if r["kind"] == "set":
+            by.setdefault(r["steps"], []).append(r)
+    steps = max((s for s, rs in by.items() if len(rs) >= 5), default=max(by))
+    rs = by[steps]
+    yy, lo, hi = [], [], []
+    for si in range(8):
+        rms = np.array([np.sqrt(np.mean(((np.array(x["real"][f"sheet{si+1}"]["B_hat"])
+                                          - ds.B_nT)[6:40]) ** 2)) for x in rs])
+        yy.append(float(np.median(rms)))
+        lo.append(float(np.percentile(rms, 25)))
+        hi.append(float(np.percentile(rms, 75)))
+    return np.array(REP_LEVELS, float), np.array(yy), np.array(lo), np.array(hi), len(rs)
+
+
+def _fmt_r(x, pos):
+    return f"{x/1e3:.0f}k" if x < 1e6 else f"{x/1e6:.0f}M"
+
+
+def fig1(a, ds):
+    reps = np.array(sorted(int(k[1:]) for k in a["tables"]["cols7_40"]), float)
+    fig, (ax, bx) = plt.subplots(2, 1, figsize=(3.4, 4.1), sharex=True,
+                                 gridspec_kw={"height_ratios": [2.1, 1.0], "hspace": 0.08})
+    # (a) ladder
     for m in ["lm_refine", "joint_refine", "partial_pool"]:
-        ys = []
-        for k in [f"r{int(r)}" for r in reps]:
-            e = a["tables"]["cols7_40"][k].get(m)
-            ys.append(e["rmse"] if e else np.nan)
-        ax.errorbar(reps, ys, yerr=None, marker="o", ms=3.5, lw=1.2, color=COL[m],
-                    label=LAB[m])
-    nets = load_res_nets()
-    if nets:
-        st = max(nets)          # longest-trained nets
-        rr_, yy_, nn = nets[st]
-        ax.plot(rr_, yy_, marker="s", ms=3.5, lw=1.2, color="#9467bd",
-                label=f"amortized network ({nn} seeds)")
+        y, elo, ehi = [], [], []
+        for r in reps:
+            e = a["tables"]["cols7_40"][f"r{int(r)}"].get(m)
+            if not e:
+                y.append(np.nan); elo.append(np.nan); ehi.append(np.nan); continue
+            y.append(e["rmse"])
+            elo.append(e["rmse"] - e["rmse_ci"][0]); ehi.append(e["rmse_ci"][1] - e["rmse"])
+        ax.errorbar(reps, y, yerr=[elo, ehi], marker=MK[m], ms=3.2, lw=1.1, color=COL[m],
+                    capsize=1.6, elinewidth=0.7, label=LAB[m])
+    net = res_net_ladder(ds)
+    if net:
+        rr_, yy_, lo_, hi_, n_ = net
+        ax.errorbar(rr_, yy_, yerr=[yy_ - lo_, hi_ - yy_], marker="D", ms=3.0, lw=1.1,
+                    color=NETC, capsize=1.6, elinewidth=0.7,
+                    label=f"amortized network ({n_} seeds)")
     rr = np.logspace(np.log10(4000), np.log10(700000), 200)
     fl = a["floor_law"]["cols7_40"]
     for m, ls in [("lm_refine", "--"), ("joint_refine", ":")]:
         A, b = fl[m]["A_nT"], fl[m]["floor_nT"]
-        ax.plot(rr, np.sqrt(A**2 * 5000 / rr + b**2), ls, color=COL[m], lw=1.0, alpha=0.9)
+        ax.plot(rr, np.sqrt(A**2 * 5000 / rr + b**2), ls, color=COL[m], lw=0.9, alpha=0.85)
+    ax.axvspan(4000, 8000, color="0.5", alpha=0.07, lw=0)
     rstar = fl["crossover_reps"]
-    ax.axvline(rstar, color="k", lw=0.8, alpha=0.6)
-    ax.annotate(rf"$r^*\approx{rstar/1e4:.0f}\times10^4$", (rstar, 40), fontsize=7,
-                rotation=90, va="bottom", ha="right")
+    ax.axvline(rstar, color="k", lw=0.7, alpha=0.55)
+    ax.text(rstar * 1.12, ax.get_ylim()[1] * 0.30,
+            rf"$r^*\!\approx\!{rstar/1e4:.0f}\times10^4$", fontsize=6.5, rotation=90,
+            va="top")
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlabel("repetitions per $\\tau$ point  $r$")
-    ax.set_ylabel("field RMSE $\\delta B$ (nT)")
-    ax.set_title("real data, columns 7–40", fontsize=8)
-    ax.legend(loc="lower left", frameon=False)
-    fig.savefig(f"{OUT}/fig1_ladder.pdf")
-    fig.savefig(f"{OUT}/fig1_ladder.png")
+    ax.set_ylabel(r"field RMSE $\delta B$ (nT)")
+    ax.set_ylim(40, 1000)
+    ax.legend(loc="lower left", ncol=1, handlelength=1.6, labelspacing=0.25)
+    ax.text(0.985, 0.05, "measured budget range", transform=ax.transAxes, fontsize=6.2,
+            ha="right", color="0.35")
+    # (b) bias
+    for m in ["lm_refine", "joint_refine", "partial_pool"]:
+        y = [a["tables"]["cols7_40"][f"r{int(r)}"].get(m, {}).get("bias", np.nan)
+             for r in reps]
+        bx.plot(reps, y, marker=MK[m], ms=3.0, lw=1.1, color=COL[m])
+    bx.axhline(0, color="k", lw=0.6)
+    bx.set_yscale("symlog", linthresh=20)
+    bx.set_xscale("log")
+    bx.set_xlabel(r"repetitions per $\tau$ point, $r$")
+    bx.set_ylabel("bias (nT)", labelpad=1)
+    bx.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
+    fig.align_ylabels([ax, bx])
+    fig.savefig(f"{OUT}/fig1_ladder.pdf"); fig.savefig(f"{OUT}/fig1_ladder.png")
     plt.close(fig)
 
 
 def fig2(a):
-    fig, ax = plt.subplots(figsize=(3.4, 2.4))
-    reps = np.array([int(k[1:]) for k in a["tables"]["cols7_40"]], dtype=float)
-    order = np.argsort(reps); reps = reps[order]
-    for m in ["lm_refine", "joint_refine", "partial_pool"]:
-        ys = [a["tables"]["cols7_40"][f"r{int(r)}"].get(m, {}).get("bias", np.nan)
-              for r in reps]
-        ax.plot(reps, ys, marker="o", ms=3.5, lw=1.2, color=COL[m], label=LAB[m])
-    ax.axhline(0, color="k", lw=0.6)
-    ax.set_xscale("log")
-    ax.set_xlabel("repetitions per $\\tau$ point  $r$")
-    ax.set_ylabel("mean error $\\langle \\hat B - B\\rangle$ (nT)")
-    ax.legend(loc="upper left", frameon=False)
-    fig.savefig(f"{OUT}/fig2_bias.pdf"); fig.savefig(f"{OUT}/fig2_bias.png")
+    """The two bounds and how close each estimator comes to its own."""
+    reps = np.array(sorted(int(k[1:]) for k in a["tables"]["cols7_40"]), float)
+    fig, (ax, bx) = plt.subplots(1, 2, figsize=(6.9, 2.5))
+    free = [a["crlb_medians"][f"r{int(r)}"]["free_median"] for r in reps]
+    joint = [a["crlb_medians"][f"r{int(r)}"]["joint_median"] for r in reps]
+    ax.plot(reps, free, "--", marker="o", ms=3, color=COL["lm_refine"],
+            label="free-envelope bound (per trace)")
+    ax.plot(reps, joint, ":", marker="s", ms=3, color=COL["joint_refine"],
+            label="joint bound (shared envelope, 40 cols)")
+    ax.fill_between(reps, joint, free, color="0.5", alpha=0.12, lw=0)
+    ax.set_xscale("log"); ax.set_yscale("log")
+    ax.set_xlabel(r"repetitions per $\tau$ point, $r$")
+    ax.set_ylabel(r"field bound $\sigma_B$ (nT)")
+    ax.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
+    ax.legend(loc="upper right")
+    ax.annotate("", xy=(reps[0], joint[0]), xytext=(reps[0], free[0]),
+                arrowprops=dict(arrowstyle="<->", lw=0.7, color="0.3"))
+    ax.text(reps[0] * 1.15, np.sqrt(np.asarray(free[0]) * np.asarray(joint[0])), "1.8x",
+            fontsize=7, color="0.25")
+    for m in ["lm_refine", "joint_refine"]:
+        y = [a["tables"]["cols7_40"][f"r{int(r)}"][m]["efficiency"] for r in reps]
+        bx.plot(reps, y, marker=MK[m], ms=3, color=COL[m], label=LAB[m])
+    bx.axhline(1.0, color="k", lw=0.7)
+    bx.text(reps[0], 1.03, "at its own bound", fontsize=6.5, color="0.3")
+    bx.set_xscale("log"); bx.set_yscale("log")
+    bx.set_xlabel(r"repetitions per $\tau$ point, $r$")
+    bx.set_ylabel("RMSE / own bound")
+    bx.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
+    bx.legend(loc="upper left")
+    fig.tight_layout()
+    fig.savefig(f"{OUT}/fig2_bounds.pdf"); fig.savefig(f"{OUT}/fig2_bounds.png")
     plt.close(fig)
 
 
-def fig3(a):
+def fig3():
     d = json.load(open("results/control_pooling_bias.json"))
-    reps = np.array([r["reps"] for r in d["rows"]], dtype=float)
-    fig, ax = plt.subplots(figsize=(3.4, 2.7))
+    reps = np.array([r["reps"] for r in d["rows"]], float)
+    fig, ax = plt.subplots(figsize=(3.4, 2.6))
     for key, m, lab in [("lm", "lm_refine", "per-trace LM"),
                         ("pool_full", "joint_refine", "pooled (shared $T_2^*$)"),
                         ("pool_partial", "partial_pool", "pooled (per-column $T_2^*$)")]:
-        ys = [r[key]["median"] for r in d["rows"]]
-        ax.plot(reps, ys, marker="o", ms=3.5, lw=1.2, color=COL[m], label=lab)
+        ax.plot(reps, [r[key]["median"] for r in d["rows"]], marker=MK[m], ms=3.2,
+                color=COL[m], label=lab)
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlabel("repetitions per $\\tau$ point  $r$")
-    ax.set_ylabel("median $|\\delta B|$ (nT)")
-    ax.set_title("synthetic control, exact ground truth", fontsize=8)
-    ax.legend(loc="lower left", frameon=False)
+    ax.set_xlabel(r"repetitions per $\tau$ point, $r$")
+    ax.set_ylabel(r"median $|\delta B|$ (nT)")
+    ax.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
+    ax.legend(loc="lower left")
     fig.savefig(f"{OUT}/fig3_control.pdf"); fig.savefig(f"{OUT}/fig3_control.png")
     plt.close(fig)
 
@@ -140,16 +185,19 @@ def fig4():
     env = np.array(json.load(open("results/envelope_sheet8.json"))["env_sheet8"])
     names = [r"$A$ (contrast)", r"$C$ (offset)", r"$T_2^*$ ($\mu$s)",
              r"$p$ (stretch)", r"$\phi_0$ (rad)"]
-    fig, axes = plt.subplots(1, 5, figsize=(7.2, 1.9))
+    fig, axes = plt.subplots(1, 5, figsize=(6.9, 1.75))
     for k, (ax, nm) in enumerate(zip(axes, names)):
-        ax.hist(env[:, k], bins=12, color="#4c72b0", alpha=0.85)
-        ax.set_xlabel(nm, fontsize=8)
+        v = env[:, k]
+        ax.hist(v, bins=11, color="#4c72b0", alpha=0.85, edgecolor="white", linewidth=0.3)
+        ax.set_xlabel(nm, fontsize=7.5)
         if k == 0:
-            ax.set_ylabel("count", fontsize=8)
-        ax.tick_params(labelsize=7)
-        ax.grid(alpha=0.2)
-    fig.suptitle("relaxation envelope across the 40 field columns (640k-repetition fits)",
-                 fontsize=8)
+            ax.set_ylabel("columns", fontsize=7.5)
+        ax.tick_params(labelsize=6.5)
+        sd = v.std()
+        ax.set_title(rf"$\sigma/\mu={sd/np.abs(v.mean()):.2f}$", fontsize=6.5)
+        if k == 3:
+            ax.annotate("bound", xy=(v.max(), 1), xytext=(v.max() - 0.6, 4),
+                        fontsize=6, arrowprops=dict(arrowstyle="->", lw=0.5))
     fig.tight_layout()
     fig.savefig(f"{OUT}/fig4_envelope.pdf"); fig.savefig(f"{OUT}/fig4_envelope.png")
     plt.close(fig)
@@ -158,28 +206,35 @@ def fig4():
 def fig5():
     ds = load_dc()
     tau_sum = float(np.sum(ds.tau_us))
-    fig, ax = plt.subplots(figsize=(3.4, 2.4))
     a = json.load(open("results/analysis_v2.json"))
-    reps = np.array([int(k[1:]) for k in a["tables"]["cols7_40"]], dtype=float)
-    order = np.argsort(reps); reps = reps[order]
-    for m in ["lm_refine", "joint_refine"]:
-        for t_ovh, ls in [(1.0, "-"), (0.5, "--"), (2.0, ":")]:
-            t_tot = reps * (tau_sum + 300 * t_ovh)
-            ys = [a["tables"]["cols7_40"][f"r{int(r)}"].get(m, {}).get("rmse", np.nan)
-                  for r in reps]
-            ax.plot(reps, np.array(ys) * np.sqrt(t_tot), ls, marker="o", ms=2.5, lw=1.0,
-                    color=COL[m], alpha=0.9,
-                    label=f"{LAB[m].split('(')[0].strip()}, $t_{{ovh}}$={t_ovh:g} $\\mu$s")
+    reps = np.array(sorted(int(k[1:]) for k in a["tables"]["cols7_40"]), float)
+    fig, ax = plt.subplots(figsize=(3.4, 2.6))
+    for m, ls in [("lm_refine", "-"), ("joint_refine", "-")]:
+        base = []
+        for r in reps:
+            rmse = a["tables"]["cols7_40"][f"r{int(r)}"][m]["rmse"]
+            base.append(rmse * np.sqrt(r * (tau_sum + 300)))
+        band_lo, band_hi = [], []
+        for r, b in zip(reps, base):
+            rmse = a["tables"]["cols7_40"][f"r{int(r)}"][m]["rmse"]
+            band_lo.append(rmse * np.sqrt(r * (tau_sum + 150)))
+            band_hi.append(rmse * np.sqrt(r * (tau_sum + 600)))
+        ax.fill_between(reps, band_lo, band_hi, color=COL[m], alpha=0.15, lw=0)
+        ax.plot(reps, base, ls, marker=MK[m], ms=3, color=COL[m], label=LAB[m])
     ax.set_xscale("log"); ax.set_yscale("log")
-    ax.set_xlabel("repetitions per $\\tau$ point  $r$")
+    ax.set_xlabel(r"repetitions per $\tau$ point, $r$")
     ax.set_ylabel(r"$\eta=\delta B\sqrt{t_{\rm total}}$  (nT$\sqrt{\mu{\rm s}}$)")
-    ax.legend(loc="upper left", frameon=False, fontsize=6.5)
+    ax.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
+    ax.legend(loc="lower left")
+    ax.text(0.98, 0.95, r"band: $t_{\rm ovh}\in[0.5,2]\,\mu$s", transform=ax.transAxes,
+            fontsize=6.2, ha="right", va="top", color="0.35")
     fig.savefig(f"{OUT}/fig5_eta.pdf"); fig.savefig(f"{OUT}/fig5_eta.png")
     plt.close(fig)
 
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    a = load()
-    fig1(a); fig2(a); fig3(a); fig4(); fig5()
+    ds = load_dc()
+    a = load_all()
+    fig1(a, ds); fig2(a); fig3(); fig4(); fig5()
     print("figures written to", OUT)
