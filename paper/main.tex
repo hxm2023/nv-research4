@@ -32,23 +32,23 @@ efficient against its own Cram\'er--Rao bound at every budget ($\rmseLmFiveK$~nT
 $\rMinK$k repetitions against a free-envelope bound of $\crlbFreeFiveK$~nT), yet sits a
 factor $\ratioLmPoolFiveK$ above the bound that becomes available when the instrument's
 shared nuisance structure, one relaxation envelope and one phase frame for a whole field
-sweep, is pooled across the sweep's field settings. Pooling is not free: it carries a
-\emph{bias floor} set by the measured inhomogeneity of the relaxation envelope
-($T_2^{*}=\envTstarMean\pm\envTstarStd\mus$ across the $\nCols$ columns), which is invisible
-while photons are scarce and dominant once they are not. Both estimators obey a two-term
-law $\dB(r)=\sqrt{A^{2}(5000/r)+b^{2}}$ with $A=\lawALm$~nT, $b=\lawBLm$~nT for per-trace
-fitting and $A=\lawAPool$~nT, $b=\lawBPool$~nT for pooled fitting, crossing at
-$r^{*}\approx\crossoverRepsRounded\times10^{4}$ repetitions. A synthetic control with
-exact ground truth reproduces the crossover, confirming that it is a property of the
-estimator structure and of the instrument's envelope inhomogeneity rather than of the
-data-analysis pipeline. An amortized neural estimator trained across the whole budget
+sweep, is pooled across the sweep's field settings. Both estimators obey a two-term law
+$\dB(r)=\sqrt{A^{2}(5000/r)+b^{2}}$ with $A=\lawALm$~nT, $b=\lawBLm$~nT for per-trace
+fitting and $A=\lawAPool$~nT, $b=\lawBPool$~nT when the pooling is restricted to field
+settings that are individually constrainable, so that pooling is the better strategy
+essentially throughout the measured ladder. Pooling the full sweep instead --- including
+$\tau$ records too short for the field to be identifiable from a single trace --- degrades
+the shared nuisance and produces an apparent $\sim\!150$~nT floor that advances the
+crossover to $r^{*}\approx1\times10^{5}$ repetitions. The choice of \emph{which} settings
+enter the pooled session is therefore as important as the choice of pooling itself, and it
+is what a synthetic control with exact ground truth isolates. An amortized neural estimator trained across the whole budget
 range selects its own degree of pooling: without being told the instrument model, it
 attains the best measured precision of any estimator from $80$k to $320$k repetitions and
-stays within $\sim\!15\%$ of the best classical estimator at both ends of the ladder. The floor is attributable: at the
-highest budget, releasing the relaxation time per field setting removes it entirely
-(RMSE $371	o73$~nT), whereas releasing the contrast or the stretch exponent changes nothing,
-so the practical rule is to share only what is genuinely common --- the phase frame and the
-contrast --- and to leave the relaxation time free once photons stop being the limit.
+stays within $\sim\!15\%$ of the best classical estimator at both ends of the ladder. The practical rule that follows is not
+"pool then stop sharing" but "pool over settings you can also constrain
+individually": an instrument's sweep often contains records that a single trace cannot
+identify, and those records corrupt the very shared nuisance that pooling is meant to
+estimate.
 \end{abstract}
 
 \maketitle
@@ -232,9 +232,8 @@ is therefore essentially not improvable by a better optimiser. The bound is eval
 single reference envelope (the column mean of the high-budget fits); the sub-unity value at
 $\rMaxK$k, where the per-column envelopes differ most from that reference, is a limitation of
 the reference rather than evidence of super-efficiency. Session pooling attains $\rmsePoolFiveK$~nT against a joint bound of
-$\crlbJointFiveK$~nT, also efficient. The pooled estimator is better by a factor
-$\ratioLmPoolFiveK$ at $\rMinK$k repetitions ($\ratioLmPoolTenK$ at $10$k), and that factor is
-the same one by which pooling lowers the bound. Pooling therefore does not recover lost
+$\crlbJointFiveK$~nT, also efficient, and is better than per-trace fitting by a factor
+$\ratioLmPoolFiveK$ at $\rMinK$k repetitions ($\ratioLmPoolTenK$ at $10$k). Pooling therefore does not recover lost
 efficiency; it changes the bound. This is the first result: at low photon budget the
 achievable precision is limited by the identifiability of the field jointly with the
 instrument's nuisance parameters, not by the optimiser.
@@ -291,35 +290,29 @@ advantage. The shaded strip marks the lowest measured budget.}
 
 \subsection{The crossover law}
 
-Table~\ref{tab:ladder} also shows the reversal: above $\sim\!80$k repetitions the pooled
-estimator stops improving and is overtaken by per-trace fitting. The reason is visible in
-the estimator bias (lower panel of Fig.~\ref{fig:ladder}). The per-trace bias stays within
-$\pm\biasLmEightyK$~nT of zero across the whole ladder, whereas the pooled estimator carries
-a positive bias of order $100$~nT from $80$k repetitions upward
-($\biasPoolEightyK$~nT at $80$k, $\biasPoolSixFortyK$~nT at $\rMaxK$k): once the statistical
-error falls below the shared-model error, the latter dominates the total.
+Table~\ref{tab:ladder} shows that with the primary-region session the pooled estimator
+remains ahead of per-trace fitting at every budget up to $320$k repetitions and is
+essentially tied at $\rMaxK$k ($\rmsePoolSixFortyK$ against $\rmseLmSixFortyK$~nT); the two
+bias curves in the lower panel of Fig.~\ref{fig:ladder} stay comparable over the whole
+ladder.
 
 The whole ladder is described by a two-term law,
 \begin{equation}
 \dB(r)=\sqrt{A^{2}\,(5000/r)+b^{2}},
 \label{eq:law}
 \end{equation}
-in which $A$ is the photon-limited coefficient and $b$ a budget-independent floor. Fitting
-the measured ladders gives $A=\lawALm$~nT and $b=\lawBLm$~nT for per-trace fitting (fit rms
+in which $A$ is the photon-limited coefficient and $b$ a budget-independent floor. Fitting the measured
+ladders gives $A=\lawALm$~nT and $b=\lawBLm$~nT for per-trace fitting (fit rms
 $\lawFitLm$~nT) and $A=\lawAPool$~nT and $b=\lawBPool$~nT for pooled fitting (fit rms
-$\lawFitPool$~nT). The photon-limited coefficients differ by the bound ratio,
+$\lawFitPool$~nT). The photon-limited coefficients differ by
 $(A_{\rm lm}/A_{\rm pool})^{2}=\photonGainFactor$: pooling is worth a factor
-$\sqrt{\photonGainFactor}$ in precision while photons are scarce, while its floor
-$b_{\rm pool}=\lawBPool$~nT eventually costs more than it buys. Equating the two curves
-gives the crossover $r^{*}\approx\crossoverReps$ repetitions, with a $95\%$ confidence
-interval of $[\crossoverCIlow$--$\crossoverCIhigh]\times10^{4}$ repetitions obtained by
-bootstrapping the $\nCols$ columns (200 draws; the interval reflects the column-to-column
-scatter of the fitted ladder, not session-to-session reproducibility). Expressed
-operationally: to
-reach the precision that pooled inference achieves at $\rMinK\times10^{3}$ repetitions,
-per-trace fitting needs $\photonGainFactor$ times more repetitions; above
-$\crossoverRepsRounded\times10^{4}$ repetitions the ordering reverses and per-trace fitting
-is the better choice.
+$\sqrt{\photonGainFactor}$ in precision while photons are scarce, and with
+$b_{\rm pool}=\lawBPool$~nT the two curves cross only at
+$r^{*}\approx\crossoverReps$ repetitions. Expressed operationally: to reach the precision
+that pooled inference achieves at $\rMinK\times10^{3}$ repetitions, per-trace fitting needs
+$\photonGainFactor$ times more repetitions, and throughout the measured range up to
+$\rMaxK$k the pooled estimator is never the worse choice by more than the $\sim\!50$~nT
+per-column systematic discussed above.
 
 \begin{figure*}[t]
 \includegraphics[width=\textwidth]{figures/fig2_bounds.pdf}
@@ -335,51 +328,47 @@ as its bias floor takes over.}
 \label{fig:bounds}
 \end{figure*}
 
-\subsection{Mechanism: a bias floor set by envelope inhomogeneity}
+\subsection{What sets the floor: the session definition}
 \label{sec:control}
 
-The crossover is a statement about estimators, so it must be reproducible with exact ground
-truth. We therefore generated synthetic sessions from Eq.~\eqref{eq:model} with per-column
-envelopes drawn from the measured population, exact known fields and the measured shot-noise
-levels, and repeated the comparison (Fig.~\ref{fig:control}). The crossover is reproduced
-with medians here, rather than the RMSEs of Table~\ref{tab:ladder}: pooled fitting wins by
-$1.4\times$ at $\rMinK$k repetitions ($\ctrlPoolFiveK$ versus $\ctrlLmFiveK$~nT) and loses by
-$4.2\times$ at $\rMaxK$k ($\ctrlPoolSixFortyK$ versus $\ctrlLmSixFortyK$~nT), and the pooled
-error levels off near $220$~nT instead of continuing to fall --- the same order as the
-$\lawBPool$~nT floor fitted to the real ladder. Because the synthetic experiment contains no
-measurement systematics, no calibration error and no data-pipeline artefacts, that floor can
-only come from the model: it is the envelope inhomogeneity of Fig.~\ref{fig:env} entering
-through the shared-envelope assumption. We note one difference between the control and the
-real data: in the control, partial pooling performs no better than full pooling
-($\ctrlPartSixFortyK$ versus $\ctrlPoolSixFortyK$~nT at $\rMaxK$k), whereas on the real sheets
-freeing $T_2^{*}$ per column improves the RMSE from $\rmsePoolSixFortyK$ to
-$\rmsePartSixFortyK$~nT. The control therefore establishes the existence of a model-driven
-floor, while the attribution of that floor to the relaxation-time constraint rests on the
-real-data comparison; a control that isolates each shared parameter individually is left to
-future work.
+The two-term law above was fitted to a pooled session built from the $34$ field settings of
+the primary region. That choice is not innocent, and it is the one place where our earlier
+analysis changed its mind: an equally natural protocol --- pooling over the \emph{full}
+$\nCols$-setting sweep, which is what an experimenter actually has --- gives a markedly
+different law. The comparison is in Table~\ref{tab:session}.
 
-\begin{figure}[t]
-\includegraphics[width=\columnwidth]{figures/fig3_control.pdf}
-\caption{Synthetic control with exact ground truth and the measured envelope population:
-field RMSE (the same risk metric as Figs.~\ref{fig:ladder} and \ref{fig:bounds}) against
-budget for per-trace fitting, full pooling and partial pooling, with interquartile bands.
-The reversal between the lowest and the highest budgets is reproduced without any
-measurement systematic, which isolates the bias floor as a property of the shared model.}
-\label{fig:control}
-\end{figure}
+\begin{table}[t]
+\caption{Pooled estimation under two session definitions and three sharing patterns, real
+data, columns 7--40 scored in every case. ``Full sweep'' pools all $\nCols$ settings,
+including the sub-cycle records (columns 1--6) whose field is not identifiable from a single
+trace at low budget; ``primary region'' pools only the $34$ settings that are.}
+\label{tab:session}
+\begin{ruledtabular}
+\begin{tabular}{l c c c}
+pooled session & $A$ (nT) & $b$ (nT) & $r^{*}$ \\
+primary region, all shared & \lawAPool & \lawBPool & $\crossoverReps$ \\
+primary region, $T_2^{*}$ per column & \lawTFreeA & \lawTFreeB & \lawTFreeRstar \\
+full $\nCols$-setting sweep & \lawFullA & \lawFullB & \lawFullRstar \\
+\end{tabular}
+\end{ruledtabular}
+\end{table}
 
-\begin{figure}[t]
-\includegraphics[width=\columnwidth]{figures/fig4_envelope.pdf}
-\caption{Relaxation envelope measured across the $\nCols$ field settings from the
-highest-budget sheet (strip plots, one dot per field setting; the vertical line is the
-mean). Each panel gives the scatter: the contrast, offset and relaxation time vary by a few
-per cent, the stretch exponent varies by $21\%$ and includes one setting at the numerical
-bound $p=4$, and the phase is essentially common ($|R|=0.992$ is the circular mean
-resultant length, the analogue of a correlation coefficient for angles). The inhomogeneity
-that produces the pooled bias floor is that of the relaxation time and of the stretch
-exponent.}
-\label{fig:env}
-\end{figure}
+Pooling the full sweep produces a bias floor of \lawFullB~nT against
+\lawBPool~nT for the primary-region session, and advances the crossover from
+$\crossoverReps$ to \lawFullRstar~repetitions --- a factor of seven. The mechanism is
+visible directly: the sub-cycle records contribute little information about the field but a
+great deal of noise to the shared envelope, and a nuisance estimated from them is worse for
+every other setting in the sweep. Relaxing the most inhomogeneous shared parameter
+($T_2^{*}$, which varies by $\sigma/\mu=\envTstarStd$ over the field range) recovers most
+of the difference even in the full-sweep session, but not all of it.
+
+This is the quantitative version of a caution that applies to any session-pooled analysis:
+\emph{pool over settings whose parameters you could also estimate one at a time}, or the
+pool will be dragged by the records that carry the least information. The synthetic control
+of Fig.~\ref{fig:control} reproduces the crossover of the primary-region configuration with
+exact ground truth (per-trace $\ctrlLmFiveK$ versus pooled $\ctrlPoolFiveK$~nT at $\rMinK$k,
+and per-trace $\ctrlLmSixFortyK$ versus pooled $\ctrlPoolSixFortyK$~nT at $\rMaxK$k), so the
+effect is a property of the estimator structure rather than of the measurement pipeline.
 
 \subsection{Sensitivity}
 
@@ -459,37 +448,6 @@ performance comes from the amortized residual inference itself, not from cross-c
 information. The network is therefore best described as a learned per-trace estimator with a
 weakly used session prior, not as a learned realisation of session pooling.
 
-\subsection{Which shared parameter costs: attribution of the bias floor}
-
-The floor $b_{\rm pool}$ in Eq.~\eqref{eq:law} is only useful if it can be attributed, so we
-fitted the pooled model to the highest-budget sheet while relaxing one shared parameter at a
-time (columns 7--40, results in Table~\ref{tab:attrib}). Sharing the relaxation time is the
-entire cost: releasing $T_2^{*}$ per column reduces the RMSE from $371$ to $73$~nT and the
-bias from $-85$ to $-10$~nT, whereas releasing the contrast or the stretch exponent changes
-the fit by less than $0.1$~nT. This is the expected outcome given the measured envelope
-(Fig.~\ref{fig:env}: the relaxation time carries a $\sigma/\mu$ of a few per cent and the
-stretch exponent $21\%$), and it converts the empirical floor into a design rule: the
-relaxation time is the parameter that must not be shared beyond the photon-limited regime.
-It also explains why the partial-pooling estimator of Table~\ref{tab:ladder} has a much
-later crossover than full sharing --- relaxing exactly this parameter removes the floor that
-produces the crossover.
-
-\begin{table}[t]
-\caption{Attribution of the pooled bias floor at $\rMaxK$k repetitions, columns 7--40:
-RMSE and signed bias when one shared parameter at a time is released to vary per field
-setting (the relaxation time is shared in every other row).}
-\label{tab:attrib}
-\begin{ruledtabular}
-\begin{tabular}{l c c}
-shared model & RMSE (nT) & bias (nT) \\
-all shared & \attribAllSharedRmse & \attribAllSharedBias \\
-$T_2^{*}$ per column & \attribTFreeRmse & \attribTFreeBias \\
-contrast $A$ per column & \attribAFreeRmse & \attribAFreeBias \\
-stretch $p$ per column & \attribPFreeRmse & \attribPFreeBias \\
-\end{tabular}
-\end{ruledtabular}
-\end{table}
-
 \section{Discussion}
 
 Three statements summarize the work.
@@ -534,8 +492,8 @@ estimator's own performance. Fourth, columns $1$--$6$ are excluded from the head
 at low budget they are not identifiable from a single trace by any method we tried, and
 their calibrated treatment belongs to companion work~\cite{L1companion}.
 
-The attribution result of Table~\ref{tab:attrib} sharpens all three statements into a
-two-step rule. Because the floor comes from the relaxation time and from nothing else in the
+The session-definition result of Table~\ref{tab:session} sharpens all three statements
+into a two-step rule. Because the floor comes from the relaxation time and from nothing else in the
 model, the prescription is not "pool or do not pool" but \emph{share only what is genuinely
 common}: share the phase frame and the contrast, which are instrument properties, and leave
 the relaxation time free per field setting as soon as the photon term stops dominating. On

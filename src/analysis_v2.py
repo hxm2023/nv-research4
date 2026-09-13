@@ -40,12 +40,26 @@ def load_methods():
                            ("joint_refine", "joint_refine")]:
                 if key in v:
                     out[si][m] = np.array(v[key])
+    # primary-region session definition (columns 7-40, 34 settings): the reference protocol.
+    # The 40-column session values are kept under *_40col for the sensitivity comparison.
+    p4 = "results/pooled_34col.json"
+    if os.path.exists(p4):
+        d4 = json.load(open(p4))
+        for si in range(8):
+            out.setdefault(si, {})
+            for key, tag in [("pool_shared34", "joint_refine"),
+                             ("pool_T2free34", "partial_pool")]:
+                b34 = np.array(d4[key]["B_hat"][si], dtype=float)
+                if tag in out[si]:
+                    out[si][tag + "_40col"] = out[si][tag]
+                out[si][tag] = np.concatenate([np.full(6, np.nan), b34])
     p3 = "results/blind_partial_pool.json"
     if os.path.exists(p3):
         d3 = json.load(open(p3))
         for k, v in d3.get("sheets", {}).items():
             si = int(k.replace("sheet", "")) - 1
-            out.setdefault(si, {})["partial_pool"] = np.array(v["B_hat"])
+            if "partial_pool" not in out.setdefault(si, {}):
+                out[si]["partial_pool"] = np.array(v["B_hat"])
     p2 = "results/blind_nets.json"
     if os.path.exists(p2):
         d = json.load(open(p2))
@@ -95,6 +109,11 @@ def fit_floor_law(reps, rmse):
     from scipy.optimize import least_squares
     r = np.asarray(reps, dtype=float)
     y = np.asarray(rmse, dtype=float)
+    m = np.isfinite(y)
+    r, y = r[m], y[m]
+    if len(y) < 4:
+        return float("nan"), float("nan"), float("nan")
+
     def resid(p):
         A, b = np.abs(p)
         return np.sqrt(A**2 * (5000.0 / r) + b**2) - y

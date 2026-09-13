@@ -106,7 +106,8 @@ def fig1(a, ds):
     ax.axvspan(4000, 8000, color="0.5", alpha=0.07, lw=0)
     rstar = fl["crossover_reps"]
     ax.axvline(rstar, color="k", lw=0.7, alpha=0.55)
-    ax.annotate(rf"$r^*={rstar/1e4:.0f}\times10^4$", xy=(rstar, 520),
+    _exp = 4 if rstar < 1e5 else (5 if rstar < 1e6 else 6)
+    ax.annotate(rf"$r^*={rstar/10**_exp:.0f}\times10^{{{_exp}}}$", xy=(rstar, 520),
                 xytext=(rstar * 0.72, 900), fontsize=6.5, color="0.15",
                 va="center", ha="right",
                 arrowprops=dict(arrowstyle="-", lw=0.5, color="0.35", shrinkA=1, shrinkB=1))

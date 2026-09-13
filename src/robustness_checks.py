@@ -77,10 +77,25 @@ def pooled_fit(tau, Y, B_init, free=()):
             th0 += [v0] * ncol; lo += [l] * ncol; hi += [h] * ncol
         else:
             th0 += [v0]; lo += [l]; hi += [h]
-    th0 += [5.4] * ncol; lo += [2.5] * ncol; hi += [15.0] * ncol   # T2 always per column
-    r = least_squares(resid, np.array(th0), bounds=(np.array(lo), np.array(hi)),
-                      max_nfev=500 * ncol)
-    return r.x[:ncol]
+    # allocate T2 as ONE parameter when shared and ncol when free: allocating ncol entries
+    # for the shared case leaves dead parameters with zero gradient and stalls the solver
+    if "T2" in free:
+        th0 += [5.4] * ncol; lo += [2.5] * ncol; hi += [15.0] * ncol
+    else:
+        th0 += [5.4]; lo += [2.5]; hi += [15.0]
+    best, best_cost = None, np.inf
+    for t2 in ([5.4] if "T2" in free else [4.0, 5.4, 7.0]):
+        th = np.array(th0, dtype=float)
+        if "T2" not in free:
+            th[-1] = t2
+        try:
+            r = least_squares(resid, th, bounds=(np.array(lo), np.array(hi)),
+                              max_nfev=500 * ncol)
+        except Exception:
+            continue
+        if r.cost < best_cost:
+            best, best_cost = r, r.cost
+    return best.x[:ncol]
 
 
 def fit_law(reps, rmse):
