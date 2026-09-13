@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sys
 
 import numpy as np
@@ -97,7 +98,8 @@ def main():
     parts = set(_s.argv[1:]) or {"1", "2", "3"}
     ds = load_dc()
     tau = ds.tau_us
-    out = {}
+    # merge with whatever earlier parts already computed (never clobber)
+    out = json.load(open(OUT)) if os.path.exists(OUT) else {}
 
     # (1) residual whiteness
     if "1" in parts:
@@ -157,11 +159,13 @@ def main():
         Bt = ds.B_nT[6:40]
         attrib = {}
         for tag, free in [("all shared", ()), ("T2 free", ("T2",)), ("p free", ("p",)),
-                          ("A free", ("A",)), ("C free", ("C",)), ("phi free", ("phi",))]:
+                          ("A free", ("A",)), ("C free", ("C",))]:
             B = pooled_fit(tau, Y, Bf, free=free)
             e = B - Bt
             attrib[tag] = {"rmse": float(np.sqrt(np.mean(e ** 2))),
                            "bias": float(np.mean(e))}
+            out["floor_attribution_sheet8"] = attrib
+            json.dump(out, open(OUT, "w"), indent=2)
             print(f"  {tag:>12}: RMSE {attrib[tag]['rmse']:7.1f} nT   "
                   f"bias {attrib[tag]['bias']:+7.1f} nT", flush=True)
         out["floor_attribution_sheet8"] = attrib

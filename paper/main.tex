@@ -26,7 +26,8 @@ of photon shot noise, as if the inference itself were free. Working with a real
 nitrogen-vacancy (NV) diamond data set that spans a $128\times$ range of photon budget
 ($\rMinK\times10^{3}$ to $\rMaxK\times10^{3}$ repetitions per delay point, $\nTau$-point
 sweep, $\nCols$ field settings), we show that the sensitivity-optimal \emph{inference
-strategy} changes with the budget. Per-trace maximum-likelihood fitting is essentially
+strategy} changes with the photon budget (about $30$ to $4\times10^{3}$ detected photons per
+delay point). Per-trace maximum-likelihood fitting is essentially
 efficient against its own Cram\'er--Rao bound at every budget ($\rmseLmFiveK$~nT at
 $\rMinK$k repetitions against a free-envelope bound of $\crlbFreeFiveK$~nT), yet sits a
 factor $\ratioLmPoolFiveK$ above the bound that becomes available when the instrument's
@@ -98,7 +99,9 @@ sheets of a $\nTau\times\nCols$ array. Rows are delay times $\tau_i = \tauStep\,
 $i=1,\dots,\nTau$ and a step of $20$~ns, i.e.\ $0.02$ to $\tauMax\mus$. Columns are applied
 fields $B_n = \bStep\,n$ with $n=1,\dots,\nCols$, i.e.\ $1071.4$~nT steps covering $1.07$ to
 $\bMax\muT$. Each sheet corresponds to a different number of laser--microwave repetitions
-per delay point, $r\in\{5,10,20,40,80,160,320,640\}\times10^{3}$; the signal-to-noise ratio
+per delay point, $r\in\{5,10,20,40,80,160,320,640\}\times10^{3}$, which at this
+readout corresponds to approximately $r/150$ detected photons per delay point (roughly
+$30$ to $4\times10^{3}$ photons per point across the ladder); the signal-to-noise ratio
 scales with $r$ as expected for shot noise. All evaluations in this paper use the real
 traces; no synthetic data appears in any reported performance number. Synthetic traces are
 used only to train the neural estimator described in Sec.~\ref{sec:net} and, with
@@ -255,7 +258,6 @@ this table was entered by hand.}
 \begin{ruledtabular}
 \begin{tabular}{r c c c c}
 $r$ & \texttt{lm} & \texttt{pool} & \texttt{part} & network \\
-\hline
 $\rMinK$k & \rmseLmFiveK & \rmsePoolFiveK & \rmsePartFiveK & \rmseNetSetFiveK \\
 $10$k & \rmseLmTenK & \rmsePoolTenK & \rmsePartTenK & \rmseNetSetTenK \\
 $20$k & \rmseLmTwentyK & \rmsePoolTwentyK & \rmsePartTwentyK & \rmseNetSetTwentyK \\
@@ -438,18 +440,53 @@ information --- is reported in Sec.~\ref{sec:ablation}.
 \subsection{Ablation: removing the session context}
 \label{sec:ablation}
 
-To separate \emph{learned sharing} from the network's per-trace inference we trained an
+To separate \emph{learned sharing} from purely per-trace amortized inference we trained an
 identical architecture with the session-attention block removed, so that each trace is
-estimated independently, with the same training data and budget range
-(\nSeedsAblation{} seeds). In the primary region the ablated model is worse than the
-session-conditioned one at every budget above $\rMinK$k
-($\rmseAblFiveK$, $\rmseAblTwentyK$, $\rmseAblEightyK$ and $\rmseAblThreeTwentyK$~nT at
-$\rMinK$k, $20$k, $80$k and $320$k, against $\rmseNetSetFiveK$, $\rmseNetSetTwentyK$,
-$\rmseNetSetEightyK$ and $\rmseNetSetThreeTwentyK$~nT respectively), and it also loses the
-sharp transition at high budget where the conditioned model overtakes every classical
-estimator. The session context is therefore doing real work: the network's advantage is not
-a generic property of amortized regression but comes from information shared across the
-columns of a session.
+estimated independently; the training data, budget range and seed count are otherwise the
+same (\nSeedsAblation{} seeds). Over the primary region the ablated model is worse at every
+budget except $20$k, by $4$--$26\%$
+($\rmseAblFiveK$ against $\rmseNetSetFiveK$~nT at $\rMinK$k, $\rmseAblEightyK$ against
+$\rmseNetSetEightyK$~nT at $80$k, $\rmseAblSixFortyK$ against $\rmseNetSetSixFortyK$~nT at
+$\rMaxK$k), and the per-seed interquartile spreads of the two variants do not overlap
+except at $20$k. Two conclusions follow, and we state them in the less flattering
+direction. First, the session context contributes, and contributes most at the highest
+budget, which is precisely where the classical pooled estimator is worst --- consistent with
+the attention block learning to discount the shared envelope when the trace itself is
+informative. Second, the contribution is modest: the greater part of the network's
+performance comes from the amortized residual inference itself, not from cross-column
+information. The network is therefore best described as a learned per-trace estimator with a
+weakly used session prior, not as a learned realisation of session pooling.
+
+\subsection{Which shared parameter costs: attribution of the bias floor}
+
+The floor $b_{\rm pool}$ in Eq.~\eqref{eq:law} is only useful if it can be attributed, so we
+fitted the pooled model to the highest-budget sheet while relaxing one shared parameter at a
+time (columns 7--40, results in Table~\ref{tab:attrib}). Sharing the relaxation time is the
+entire cost: releasing $T_2^{*}$ per column reduces the RMSE from $371$ to $73$~nT and the
+bias from $-85$ to $-10$~nT, whereas releasing the contrast or the stretch exponent changes
+the fit by less than $0.1$~nT. This is the expected outcome given the measured envelope
+(Fig.~\ref{fig:env}: the relaxation time carries a $\sigma/\mu$ of a few per cent and the
+stretch exponent $21\%$), and it converts the empirical floor into a design rule: the
+relaxation time is the parameter that must not be shared beyond the photon-limited regime.
+It also explains why the partial-pooling estimator of Table~\ref{tab:ladder} has a much
+later crossover than full sharing --- relaxing exactly this parameter removes the floor that
+produces the crossover.
+
+\begin{table}[t]
+\caption{Attribution of the pooled bias floor at $\rMaxK$k repetitions, columns 7--40:
+RMSE and signed bias when one shared parameter at a time is released to vary per field
+setting (the relaxation time is shared in every other row).}
+\label{tab:attrib}
+\begin{ruledtabular}
+\begin{tabular}{l c c}
+shared model & RMSE (nT) & bias (nT) \\
+all shared & \attribAllSharedRmse & \attribAllSharedBias \\
+$T_2^{*}$ per column & \attribTFreeRmse & \attribTFreeBias \\
+contrast $A$ per column & \attribAFreeRmse & \attribAFreeBias \\
+stretch $p$ per column & \attribPFreeRmse & \attribPFreeBias \\
+\end{tabular}
+\end{ruledtabular}
+\end{table}
 
 \section{Discussion}
 

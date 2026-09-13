@@ -106,9 +106,9 @@ def fig1(a, ds):
     ax.axvspan(4000, 8000, color="0.5", alpha=0.07, lw=0)
     rstar = fl["crossover_reps"]
     ax.axvline(rstar, color="k", lw=0.7, alpha=0.55)
-    ax.annotate(rf"$r^*={rstar/1e4:.0f}\times10^4$", xy=(rstar, 330),
-                xytext=(rstar * 3.4, 430), fontsize=6.5, color="0.15",
-                va="center", ha="left",
+    ax.annotate(rf"$r^*={rstar/1e4:.0f}\times10^4$", xy=(rstar, 520),
+                xytext=(rstar * 0.72, 900), fontsize=6.5, color="0.15",
+                va="center", ha="right",
                 arrowprops=dict(arrowstyle="-", lw=0.5, color="0.35", shrinkA=1, shrinkB=1))
     ax.set_xscale("log"); ax.set_yscale("log")
     ax.set_ylabel(r"field RMSE $\delta B$ (nT)")
@@ -132,6 +132,9 @@ def fig1(a, ds):
     bx.set_ylabel("bias (nT)", labelpad=1)
     bx.xaxis.set_major_formatter(FuncFormatter(_fmt_r))
     fig.align_ylabels([ax, bx])
+    sec = ax.secondary_xaxis("top", functions=(lambda x: x / 150.0, lambda x: x * 150.0))
+    sec.set_xlabel("detected photons per delay point", fontsize=7)
+    sec.tick_params(labelsize=6.5)
     fig.savefig(f"{OUT}/fig1_ladder.pdf"); fig.savefig(f"{OUT}/fig1_ladder.png")
     plt.close(fig)
 

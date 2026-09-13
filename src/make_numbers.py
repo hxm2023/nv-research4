@@ -173,10 +173,11 @@ if os.path.exists(rb):
         m("crossoverCIhigh", cb["ci95"][1] / 1e4, "{:.1f}")
         m("crossoverMedianK", cb["median"] / 1e3, "{:.0f}")
     fa = R.get("floor_attribution_sheet8", {})
-    for tag, key in [("AllShared", "all shared"), ("TFree", "T2 free"), ("PFree", "p free")]:
+    for tag, key in [("AllShared", "all shared"), ("TFree", "T2 free"),
+                     ("PFree", "p free"), ("AFree", "A free"), ("CFree", "C free")]:
         if key in fa:
-            nm = "floor" + tag
-            m(nm, fa[key]["bias"], "{:+.0f}")
+            m("attrib" + tag + "Rmse", fa[key]["rmse"], "{:.0f}")
+            m("attrib" + tag + "Bias", fa[key]["bias"], "{:+.0f}")
 
 
 # ablation: session-attention removed (per-trace residual nets), 5 seeds if available
