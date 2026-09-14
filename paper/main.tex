@@ -703,11 +703,13 @@ parameters ($39$) and the number of active ones ($39$; the revised code allocate
 relaxation-time parameter when it is shared and $\nCols$-many when it is free, so the
 inactive-parameter failure mode is structurally impossible); the agreement with an
 independent optimiser (L-BFGS-B) started from the same point, which returns identical
-fields to within $0.0$~nT at all eight budgets; and the condition number of
-$J^{\!\top}J$, which is $1.2\times10^{11}$ at every budget --- large, as expected when
-field parameters in nT and envelope parameters of order unity share a Jacobian, but
-identical across four decades of photon budget, which is the signature of a
-well-conditioned-but-scaled problem rather than of a flat direction. The pooled solution is
+fields to within $0.0$~nT at all eight budgets; and the conditioning of the
+Jacobian. The raw condition number of $J^{\!\top}J$ is $1.2\times10^{11}$ at every budget,
+which is a statement about units --- field parameters in nT against envelope parameters of
+order unity --- rather than about the problem: rescaling every column of $J$ to unit norm
+gives a dimensionless condition number of $3.99$--$4.00$, identical at all eight budgets.
+The fit is therefore well conditioned and contains no flat direction of the kind that
+produced the earlier artefact. The pooled solution is
 also stable against initialization: starting from the FFT estimate and from the per-trace
 maximum-likelihood solution converges to the same fields.
 
