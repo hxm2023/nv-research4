@@ -47,31 +47,8 @@ echo "== hash manifest =="
 } > "$OUT/MANIFEST.txt"
 echo "  $(grep -c json "$OUT/MANIFEST.txt") result files hashed"
 
-echo "== number provenance =="
-python - <<'PY' > "$OUT/NUMBER_PROVENANCE.txt"
-import json, os, re
-macros = dict(re.findall(r"\\newcommand\{\\([a-zA-Z]+)\}\{([^}]*)\}",
-                         open("paper/numbers.tex", encoding="utf-8").read()))
-srcs = {}
-for name in sorted(os.listdir("results")):
-    if not name.endswith(".json"):
-        continue
-    txt = open(os.path.join("results", name), encoding="utf-8").read()
-    srcs[name] = txt
-print("# LaTeX macro -> the result file that carries its value (substring match on the"
-      "\n# macro's numeric value; used to spot macros whose value appears in no result file)\n")
-orphans = []
-for k, v in sorted(macros.items()):
-    hits = [n for n, t in srcs.items() if v and v.lstrip("+") in t]
-    if hits:
-        print(f"{k:28s} {v:>10s}   {hits[0]}")
-    else:
-        orphans.append((k, v))
-print(f"\n# macros whose value appears in no result file (constants and derived text): "
-      f"{len(orphans)}")
-for k, v in orphans:
-    print(f"#   {k:28s} {v}")
-PY
+echo "== number provenance ==
+python tools/number_provenance.py > "$OUT/NUMBER_PROVENANCE.txt"
 echo "  $(wc -l < "$OUT/NUMBER_PROVENANCE.txt") lines"
 
 echo
