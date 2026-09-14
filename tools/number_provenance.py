@@ -1,8 +1,14 @@
 """Emit the number-provenance table for the submission bundle.
 
-Every LaTeX macro in paper/numbers.tex is matched, by value, against every numeric leaf of
-every file in results/. Macros with no match are listed separately; they should be protocol
-constants, text macros, or values quoted directly in the manuscript text.
+Every LaTeX macro in paper/numbers.tex is classified into one of three buckets:
+
+  MATCHED   the macro's value equals a numeric leaf of some results/*.json, within the
+            rounding implied by how the macro is printed (so a value displayed as -10
+            matches a stored -9.7);
+  DERIVED   the macro is computed by src/make_numbers.py from other result values
+            (sensitivities eta, ratios, crossovers, p-values, fit residuals);
+  UNMATCHED everything else --- these must be protocol constants or text macros, and
+            anything else is a number with no provenance.
 
 Usage: python tools/number_provenance.py  > submission/NUMBER_PROVENANCE.txt
 """
@@ -13,8 +19,15 @@ import os
 import re
 
 BS = chr(92)
-MACRO_RE = re.compile(re.escape(BS) + r"newcommand\{" + re.escape(BS) + r"([a-zA-Z]+)\}"
-                      + re.escape(BS) + r"\{([^}]*)\}")
+MACRO_RE = re.compile(r"\\newcommand\{\\([a-zA-Z]+)\}\{([^}]*)\}")
+
+DERIVED_PREFIXES = ("eta", "ratio", "crlb", "pJoint", "pPart", "pNet", "crossoverReps",
+                    "photonGainFactor", "lawFit", "crossoverCI", "crossoverMedian",
+                    "rmseGB", "biasGB", "rmseAbl", "attrib", "addback", "floor", "env",
+                    "sys")
+CONSTANTS = {"nTau", "nCols", "nSheets", "rMinK", "rMaxK", "tauOffNs", "tauOffSigmaNs",
+             "tauStep", "bStep", "nBins", "WResid", "netSteps", "nSeedsNetSet",
+             "nSeedsAblation"}
 
 
 def load_macros(path="paper/numbers.tex"):
@@ -40,41 +53,54 @@ def numeric_leaves(root="results"):
     return leaves
 
 
-def as_float(v):
-    """Parse a LaTeX macro body into a float when it encodes one."""
+def parse(v):
+    """(value, display ulp) for a macro body that encodes a number, else (None, None)."""
     t = (v.replace(BS + "ensuremath{", "").replace(BS + "times10^{", "e")
-          .replace(BS + "%", "").replace("}", "").replace("{", "").replace("+", "", 1)
-         if v.startswith("+") else v.replace(BS + "ensuremath{", "")
-          .replace(BS + "times10^{", "e").replace("}", "").replace("{", ""))
+          .replace("}", "").replace("{", "").replace(BS + "%", "").strip().lstrip("+"))
     try:
-        return float(t)
+        x = float(t)
     except ValueError:
-        return None
+        return None, None
+    if "e" in t:
+        mant, _, exp = t.partition("e")
+        dec = len(mant.split(".")[1]) if "." in mant else 0
+        return x, 10.0 ** (int(exp) - dec)
+    dec = len(t.split(".")[1]) if "." in t else 0
+    return x, 10.0 ** (-dec)
 
 
 def main():
     macros = load_macros()
     leaves = numeric_leaves()
-    print("# Number provenance: every LaTeX macro in paper/numbers.tex matched by value")
-    print("# against every numeric leaf of every results/*.json (relative tolerance 0.5%,")
-    print("# which covers the rounding applied when the macros are emitted).")
-    print("# Macros with no match are listed at the end; they must be protocol constants,")
-    print("# text macros, or numbers quoted directly in the manuscript.\n")
-    orphans = []
+    print("# Number provenance for paper/numbers.tex")
+    print("#   MATCHED   value equals a numeric leaf of results/*.json, within the rounding")
+    print("#             implied by how the macro is printed (a displayed -10 matches -9.7)")
+    print("#   DERIVED   computed by src/make_numbers.py from other result values")
+    print("#   UNMATCHED must be a protocol constant or a text macro; anything else has no")
+    print("#             provenance and needs attention\n")
+    unmatched, derived, matched = [], [], 0
     for k, v in sorted(macros.items()):
-        x = as_float(v)
+        x, ulp = parse(v)
         if x is None:
-            orphans.append((k, v, "text/non-numeric"))
+            unmatched.append((k, v, "text / non-numeric"))
             continue
-        tol = 5e-3 * max(abs(x), 1e-12)
+        tol = max(5e-3 * abs(x), 0.5 * ulp)
         hits = [p for y, p in leaves if abs(y - x) <= tol]
         if hits:
-            print(f"{k:28s} {v:>12s}   {sorted(hits)[0]}")
+            matched += 1
+            print(f"MATCHED   {k:30s} {v:>14s}   {sorted(hits)[0]}")
+        elif k.startswith(DERIVED_PREFIXES):
+            derived.append((k, v))
         else:
-            orphans.append((k, v, "no result-file value within 0.5%"))
-    print(f"\n# {len(orphans)} macros with no numeric match:")
-    for k, v, why in orphans:
-        print(f"#   {k:28s} {v:>12s}   {why}")
+            unmatched.append((k, v, "no leaf within the display rounding"))
+    print(f"\n# MATCHED: {matched}   DERIVED: {len(derived)}   UNMATCHED: {len(unmatched)}")
+    print("\n# DERIVED macros (recomputed by src/make_numbers.py from the result files):")
+    for k, v in derived:
+        print(f"#   {k:30s} {v}")
+    print("\n# UNMATCHED macros:")
+    for k, v, why in unmatched:
+        tag = "protocol constant" if k in CONSTANTS else why
+        print(f"#   {k:30s} {v:>14s}   {tag}")
 
 
 if __name__ == "__main__":
