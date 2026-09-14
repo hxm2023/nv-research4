@@ -43,3 +43,6 @@ research-wiki/papers/*.pdf
 # arXiv full-text extracts (copyright; keep local)
 research-wiki/knowledge_base/papers/*.json
 !research-wiki/knowledge_base/papers/_download_log.json
+
+# Submission bundle (build artifact)
+submission/
