@@ -47,7 +47,7 @@ echo "== hash manifest =="
 } > "$OUT/MANIFEST.txt"
 echo "  $(grep -c json "$OUT/MANIFEST.txt") result files hashed"
 
-echo "== number provenance ==
+echo "== number provenance =="
 python tools/number_provenance.py > "$OUT/NUMBER_PROVENANCE.txt"
 echo "  $(wc -l < "$OUT/NUMBER_PROVENANCE.txt") lines"
 
