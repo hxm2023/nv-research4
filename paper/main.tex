@@ -223,7 +223,7 @@ instrument: the phase frame is genuinely common, the relaxation time is not.
 \emph{Grid Bayes} (\texttt{gb}). A third, non-least-squares classical estimator, included so
 that the comparison is not restricted to LM variants: a marginal posterior over $B$ on a
 $161$-point grid spanning the same $\pm3.2\times10^{3}$~nT window, with $A$ and $C$ profiled
-by linear least squares and $(T_2^{*},p,\phi_0)$ marginalised on a coarse grid
+by linear least squares and $(T_2^{*},p,\phi_0)$ optimised over a coarse grid
 ($3\times3\times9$ nodes); the reported estimate is the posterior mean.
 
 \emph{Amortized network.} See Sec.~\ref{sec:net}.
@@ -257,7 +257,7 @@ $\ratioLmPoolFiveK$ at $\rMinK$k repetitions ($\ratioLmPoolTenK$ at $10$k). The
 marginal-posterior estimator sits between the two and changes places with per-trace fitting:
 it is the better of the two per-trace analyses at the four lowest budgets
 ($\rmseGBFiveK$ against $\rmseLmFiveK$~nT at $\rMinK$k, $\rmseGBFortyK$ against
-$\rmseLmFortyK$~nT at $40$k), where marginalising the envelope pays, and it loses above
+$\rmseLmFortyK$~nT at $40$k), where profiling the envelope pays, and it loses above
 $80$k ($\rmseGBSixFortyK$ against $\rmseLmSixFortyK$~nT at $\rMaxK$k) because its residual
 error is set by the coarseness of the nuisance grid rather than by photons. Pooling therefore does not recover lost
 efficiency; it changes the bound. This is the first result: at low photon budget the
