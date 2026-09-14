@@ -89,7 +89,10 @@ settings are measured on $\nSheets$ sheets that differ only in the number of rep
 per delay point ($\rMinK\times10^{3}$ to $\rMaxK\times10^{3}$, thus a $128\times$ photon
 range), always with the full $\nTau$-point delay sweep. This lets us compare estimators at
 \emph{matched photon budget}. We deliberately do not study sparse or adaptive delay
-sampling: the sweep is fixed and only the photon budget varies.
+sampling: the sweep is fixed and only the photon budget varies. Companion work on the same
+apparatus addresses the complementary question --- which delay times to measure, and what
+aliasing that choice costs~\cite{L3companion,L4companion} --- while the present study holds
+the sweep fixed and varies only the number of repetitions.
 
 Our main finding is that the optimal inference strategy depends on the photon budget, and
 that \emph{which} measurements enter the inference matters as much as how they are combined.
@@ -749,6 +752,12 @@ validation of the real-data numbers.
 inference for the same apparatus (in preparation). The timing offset
 $\tau_{\rm off}=\tauOffNs\pm\tauOffSigmaNs$~ns and the phase-frame convention are adopted
 from it as known instrument parameters.
+\bibitem{L3companion} Companion work on sparse delay-time sampling for the same apparatus
+(archived technical report; merged into Ref.~\cite{L4companion}), which establishes the
+noise law $\sigma(r)=0.207\sqrt{5000/r}$ used here.
+\bibitem{L4companion} Companion work on sampling-design limits --- fold boundaries, the
+photon-insensitive failure plateau, and offline design screening --- for the same apparatus
+(in preparation).
 \end{thebibliography}
 
 \end{document}
