@@ -48,6 +48,12 @@ for meth, tag in [("lm_refine", "lm"), ("joint_refine", "pool"),
         b = get(meth, r, "bias")
         m(f"bias{tag.capitalize()}{SUF[int(r)]}", b, "{:+.0f}")
 
+
+# grid-Bayes ladder
+for r in REPS:
+    m(f"rmseGB{SUF[int(r)]}", get("grid_bayes", r, "rmse"), "{:.0f}")
+    m(f"biasGB{SUF[int(r)]}", get("grid_bayes", r, "bias"), "{:+.0f}")
+
 # ratios
 for r in REPS:
     lm = get("lm_refine", r, "rmse"); po = get("joint_refine", r, "rmse")

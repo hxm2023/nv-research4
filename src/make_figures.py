@@ -35,9 +35,12 @@ plt.rcParams.update({
     "legend.frameon": False, "axes.titlepad": 3,
 })
 
-COL = {"lm_refine": "#1f77b4", "joint_refine": "#d62728", "partial_pool": "#2ca02c"}
-MK = {"lm_refine": "o", "joint_refine": "s", "partial_pool": "^"}
+COL = {"lm_refine": "#1f77b4", "joint_refine": "#d62728", "partial_pool": "#2ca02c",
+       "grid_bayes": "#e377c2"}
+MK = {"lm_refine": "o", "joint_refine": "s", "partial_pool": "^",
+      "grid_bayes": "v"}
 LAB = {"lm_refine": "per-trace LM",
+       "grid_bayes": "grid-Bayes (marginal $B$)",
        "joint_refine": "pooled (shared envelope)",
        "partial_pool": "pooled (per-column $T_2^*$)"}
 NETC = "#8b5cf6"
@@ -81,7 +84,7 @@ def fig1(a, ds):
     # (a) ladder. Bands are VARIABILITY, not confidence intervals: for the classical
     # estimators they are the column-to-column interquartile range of the same session,
     # for the network the spread across training seeds. Encoded separately.
-    for m in ["lm_refine", "joint_refine", "partial_pool"]:
+    for m in ["lm_refine", "grid_bayes", "joint_refine", "partial_pool"]:
         y, qlo, qhi = [], [], []
         for r in reps:
             e = a["tables"]["cols7_40"][f"r{int(r)}"].get(m)
@@ -120,7 +123,7 @@ def fig1(a, ds):
     ax.text(5600, 1750, "lowest\nbudget", fontsize=6.0, color="0.4", ha="center",
             va="top")
     # (b) bias
-    for m in ["lm_refine", "joint_refine", "partial_pool"]:
+    for m in ["lm_refine", "grid_bayes", "joint_refine", "partial_pool"]:
         y = [a["tables"]["cols7_40"][f"r{int(r)}"].get(m, {}).get("bias", np.nan)
              for r in reps]
         bx.plot(reps, y, marker=MK[m], ms=3.0, lw=1.1, color=COL[m])

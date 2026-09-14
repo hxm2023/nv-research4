@@ -57,6 +57,17 @@
             929.4455401832918
           ]
         },
+        "grid_bayes": {
+          "rmse": 668.5624758522177,
+          "median": 389.75,
+          "bias": -64.10000000000191,
+          "crlb_own": 736.9271700833764,
+          "efficiency": 0.9072300533804123,
+          "rmse_ci": [
+            477.26964680954694,
+            857.7804917955052
+          ]
+        },
         "joint_refine": {
           "rmse": 454.69938289150315,
           "median": 373.61935897183685,
@@ -112,6 +123,17 @@
           "rmse_ci": [
             454.857603211777,
             775.7305920927507
+          ]
+        },
+        "grid_bayes": {
+          "rmse": 603.1115909816943,
+          "median": 379.0,
+          "bias": 63.88235294117433,
+          "crlb_own": 521.0861992078761,
+          "efficiency": 1.1574123281301794,
+          "rmse_ci": [
+            438.58137973193766,
+            750.1665055497859
           ]
         },
         "joint_refine": {
@@ -171,6 +193,17 @@
             461.4277481329986
           ]
         },
+        "grid_bayes": {
+          "rmse": 358.04150884893795,
+          "median": 217.90000000000327,
+          "bias": -61.25000000000244,
+          "crlb_own": 368.4635850416882,
+          "efficiency": 0.9717147728680676,
+          "rmse_ci": [
+            270.0076557651582,
+            439.56397829430125
+          ]
+        },
         "joint_refine": {
           "rmse": 279.4247305034525,
           "median": 171.13886823089706,
@@ -226,6 +259,17 @@
           "rmse_ci": [
             211.9699673777107,
             310.39300044483616
+          ]
+        },
+        "grid_bayes": {
+          "rmse": 236.6619306347453,
+          "median": 162.25000000000182,
+          "bias": -32.08235294117891,
+          "crlb_own": 260.54309960393806,
+          "efficiency": 0.9083408119213463,
+          "rmse_ci": [
+            188.6944494436811,
+            280.30311958886006
           ]
         },
         "joint_refine": {
@@ -285,6 +329,17 @@
             245.91603433243142
           ]
         },
+        "grid_bayes": {
+          "rmse": 243.383597615442,
+          "median": 165.65000000000146,
+          "bias": 13.261764705880363,
+          "crlb_own": 184.2317925208441,
+          "efficiency": 1.3210727328069907,
+          "rmse_ci": [
+            174.81037245085554,
+            309.29036198828027
+          ]
+        },
         "joint_refine": {
           "rmse": 114.46567736400426,
           "median": 59.87071466283851,
@@ -340,6 +395,17 @@
           "rmse_ci": [
             129.1434966478413,
             197.49775259709418
+          ]
+        },
+        "grid_bayes": {
+          "rmse": 246.86714157261895,
+          "median": 151.50000000000182,
+          "bias": -60.585294117649404,
+          "crlb_own": 130.27154980196903,
+          "efficiency": 1.8950196105588022,
+          "rmse_ci": [
+            188.69404328515654,
+            300.98529320498847
           ]
         },
         "joint_refine": {
@@ -399,6 +465,17 @@
             144.50392351333284
           ]
         },
+        "grid_bayes": {
+          "rmse": 173.35858111746123,
+          "median": 152.29999999999927,
+          "bias": -120.12352941176695,
+          "crlb_own": 92.11589626042205,
+          "efficiency": 1.8819616174319895,
+          "rmse_ci": [
+            143.0200599870457,
+            203.02271847935276
+          ]
+        },
         "joint_refine": {
           "rmse": 85.910037475545,
           "median": 46.29188168946348,
@@ -454,6 +531,17 @@
           "rmse_ci": [
             47.805437096322606,
             70.8523207083595
+          ]
+        },
+        "grid_bayes": {
+          "rmse": 174.02425540880395,
+          "median": 152.50000000000182,
+          "bias": -124.13823529412005,
+          "crlb_own": 65.13577490098452,
+          "efficiency": 2.6717154386102746,
+          "rmse_ci": [
+            148.57585196644118,
+            196.8715143599353
           ]
         },
         "joint_refine": {
@@ -515,6 +603,17 @@
             26225.105048979305
           ]
         },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 9995.268869728829,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
+          ]
+        },
         "joint_refine": {
           "rmse": NaN,
           "median": NaN,
@@ -570,6 +669,17 @@
           "rmse_ci": [
             1082.605890894743,
             2884.0173421808686
+          ]
+        },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 7067.722397694616,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
           ]
         },
         "joint_refine": {
@@ -629,6 +739,17 @@
             2221.0243196177153
           ]
         },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 4997.634434864414,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
+          ]
+        },
         "joint_refine": {
           "rmse": NaN,
           "median": NaN,
@@ -684,6 +805,17 @@
           "rmse_ci": [
             311.26423179692875,
             1486.7219500184515
+          ]
+        },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 3533.861198847308,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
           ]
         },
         "joint_refine": {
@@ -743,6 +875,17 @@
             1685.882917049698
           ]
         },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 2498.817217432207,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
+          ]
+        },
         "joint_refine": {
           "rmse": NaN,
           "median": NaN,
@@ -798,6 +941,17 @@
           "rmse_ci": [
             580.4221409169938,
             1731.6349379512221
+          ]
+        },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 1766.930599423654,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
           ]
         },
         "joint_refine": {
@@ -857,6 +1011,17 @@
             1576.997740433807
           ]
         },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 1249.4086087161036,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
+          ]
+        },
         "joint_refine": {
           "rmse": NaN,
           "median": NaN,
@@ -912,6 +1077,17 @@
           "rmse_ci": [
             443.4961630799829,
             1554.103181902669
+          ]
+        },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 883.465299711827,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
           ]
         },
         "joint_refine": {
@@ -973,6 +1149,17 @@
             11149.287878829376
           ]
         },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 743.7722092524888,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
+          ]
+        },
         "joint_refine": {
           "rmse": NaN,
           "median": NaN,
@@ -1028,6 +1215,17 @@
           "rmse_ci": [
             620.3802241624186,
             1365.9653961581948
+          ]
+        },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 525.9263728191593,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
           ]
         },
         "joint_refine": {
@@ -1087,6 +1285,17 @@
             1000.136723494505
           ]
         },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 371.8861046262444,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
+          ]
+        },
         "joint_refine": {
           "rmse": NaN,
           "median": NaN,
@@ -1142,6 +1351,17 @@
           "rmse_ci": [
             252.19820636447167,
             652.9637087188669
+          ]
+        },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 262.96318640957963,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
           ]
         },
         "joint_refine": {
@@ -1201,6 +1421,17 @@
             746.8335802156049
           ]
         },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 185.9430523131222,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
+          ]
+        },
         "joint_refine": {
           "rmse": NaN,
           "median": NaN,
@@ -1256,6 +1487,17 @@
           "rmse_ci": [
             206.57612727731365,
             752.753011560312
+          ]
+        },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 131.48159320478982,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
           ]
         },
         "joint_refine": {
@@ -1315,6 +1557,17 @@
             679.4388495187712
           ]
         },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 92.9715261565611,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
+          ]
+        },
         "joint_refine": {
           "rmse": NaN,
           "median": NaN,
@@ -1370,6 +1623,17 @@
           "rmse_ci": [
             127.35064657496996,
             656.3823510861023
+          ]
+        },
+        "grid_bayes": {
+          "rmse": NaN,
+          "median": NaN,
+          "bias": NaN,
+          "crlb_own": 65.74079660239491,
+          "efficiency": NaN,
+          "rmse_ci": [
+            NaN,
+            NaN
           ]
         },
         "joint_refine": {

@@ -41,7 +41,7 @@ $\tau$ records too short for the field to be identifiable from a single trace --
 the shared nuisance and produces an apparent $\sim\!150$~nT floor that advances the
 crossover to $r^{*}\approx1\times10^{5}$ repetitions. The choice of \emph{which} settings
 enter the pooled session is therefore as important as the choice of pooling itself, and it
-is what a synthetic control with exact ground truth isolates. The criter is pre-computable --- a
+is what a synthetic control with exact ground truth isolates. The criterion is pre-computable --- a
 single-trace bound smaller than the field step --- so the pooled session can be chosen
 before the measurement. An amortized neural estimator trained across the whole budget
 range reproduces much of the pooled advantage and the avoidance of the unidentifiable
@@ -90,15 +90,17 @@ range), always with the full $\nTau$-point delay sweep. This lets us compare est
 \emph{matched photon budget}. We deliberately do not study sparse or adaptive delay
 sampling: the sweep is fixed and only the photon budget varies.
 
-Our main finding is that the optimal estimator is not the same at all budgets. A per-trace
-fit, with six free parameters per fringe, is efficient against its own Cram\'er--Rao bound,
-but that bound is inflated by the need to determine the fringe's nuisance parameters from a
-single trace. Pooling the nuisance parameters across the $\nCols$ field settings of a sweep
-moves the bound down by a factor close to two. However, the pooling assumption is
-imperfect: the relaxation envelope genuinely varies across the field range, and the
-resulting model error acts as a bias floor that dominates the photon-limited term above
-$r^{*}\approx\crossoverRepsRounded\times10^{4}$ repetitions. The sensitivity-optimal
-strategy is therefore budget-dependent, and we quantify its crossover.
+Our main finding is that the optimal inference strategy depends on the photon budget, and
+that \emph{which} measurements enter the inference matters as much as how they are combined.
+A per-trace fit, with six free parameters per fringe, is efficient against its own
+Cram\'er--Rao bound, but that bound is inflated by the need to determine the fringe's
+nuisance parameters from a single trace; pooling an instrument's shared nuisance structure
+across the field settings of a sweep moves the bound down by a factor close to two. The
+pooling is only as good as the settings it is built from, however. A sweep typically
+contains records whose field a single trace cannot identify at all, and those records
+contribute little information about the field but a great deal of noise to the shared
+nuisance, degrading every other setting in the session. Quantifying that effect, and giving
+an objective criterion for which settings may be pooled, is the content of this paper.
 
 \section{Experiment and data}
 
@@ -212,6 +214,12 @@ structure, and its bound is $\sigma_B^{\rm joint}$.
 while $A$, $C$, $p$ and $\phi_0$ remain shared. This structure follows the measured
 instrument: the phase frame is genuinely common, the relaxation time is not.
 
+\emph{Grid Bayes} (\texttt{gb}). A third, non-least-squares classical estimator, included so
+that the comparison is not restricted to LM variants: a marginal posterior over $B$ on a
+$161$-point grid spanning the same $\pm3.2\times10^{3}$~nT window, with $A$ and $C$ profiled
+by linear least squares and $(T_2^{*},p,\phi_0)$ marginalised on a coarse grid
+($3\times3\times9$ nodes); the reported estimate is the posterior mean.
+
 \emph{Amortized network.} See Sec.~\ref{sec:net}.
 
 \subsection{Metrics}
@@ -239,7 +247,13 @@ single reference envelope (the column mean of the high-budget fits); the sub-uni
 $\rMaxK$k, where the per-column envelopes differ most from that reference, is a limitation of
 the reference rather than evidence of super-efficiency. Session pooling attains $\rmsePoolFiveK$~nT against a joint bound of
 $\crlbJointFiveK$~nT, also efficient, and is better than per-trace fitting by a factor
-$\ratioLmPoolFiveK$ at $\rMinK$k repetitions ($\ratioLmPoolTenK$ at $10$k). Pooling therefore does not recover lost
+$\ratioLmPoolFiveK$ at $\rMinK$k repetitions ($\ratioLmPoolTenK$ at $10$k). The
+marginal-posterior estimator sits between the two and changes places with per-trace fitting:
+it is the better of the two per-trace analyses at the four lowest budgets
+($\rmseGBFiveK$ against $\rmseLmFiveK$~nT at $\rMinK$k, $\rmseGBFortyK$ against
+$\rmseLmFortyK$~nT at $40$k), where marginalising the envelope pays, and it loses above
+$80$k ($\rmseGBSixFortyK$ against $\rmseLmSixFortyK$~nT at $\rMaxK$k) because its residual
+error is set by the coarseness of the nuisance grid rather than by photons. Pooling therefore does not recover lost
 efficiency; it changes the bound. This is the first result: at low photon budget the
 achievable precision is limited by the identifiability of the field jointly with the
 instrument's nuisance parameters, not by the optimiser.

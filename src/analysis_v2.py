@@ -60,6 +60,13 @@ def load_methods():
             si = int(k.replace("sheet", "")) - 1
             if "partial_pool" not in out.setdefault(si, {}):
                 out[si]["partial_pool"] = np.array(v["B_hat"])
+    # grid-Bayes baseline across the ladder (blind, same window as the LM refiners)
+    pg = "results/grid_bayes_ladder.json"
+    if os.path.exists(pg):
+        dg = json.load(open(pg))
+        for k, v in dg.get("sheets", {}).items():
+            si = int(k.replace("sheet", "")) - 1
+            out.setdefault(si, {})["grid_bayes"] = np.array(v["B_hat"])
     p2 = "results/blind_nets.json"
     if os.path.exists(p2):
         d = json.load(open(p2))
@@ -149,8 +156,8 @@ def main():
             r = int(REP_LEVELS[si])
             if si not in methods:
                 continue
-            for m in ["lm_refine", "joint_refine", "partial_pool", "net_set_ens",
-                      "net_set", "net_trace_ens", "net_trace"]:
+            for m in ["lm_refine", "grid_bayes", "joint_refine", "partial_pool",
+                      "net_set_ens", "net_set", "net_trace_ens", "net_trace"]:
                 if m.endswith("_seeds"):
                     continue
                 if m not in methods[si]:
@@ -160,7 +167,7 @@ def main():
                 rmse = float(np.sqrt(np.mean(err**2)))
                 med = float(np.median(ae))
                 bias = float(np.mean(err))
-                if m in ("lm_refine", "net_trace", "net_trace_ens"):
+                if m in ("lm_refine", "grid_bayes", "net_trace", "net_trace_ens"):
                     bound = float(np.median(crl[r]["free"][sl]))
                 else:
                     bound = float(np.median(crl[r]["joint"][sl]))
