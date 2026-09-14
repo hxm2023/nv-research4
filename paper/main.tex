@@ -43,10 +43,11 @@ crossover to $r^{*}\approx1\times10^{5}$ repetitions. The choice of \emph{which}
 enter the pooled session is therefore as important as the choice of pooling itself, and it
 is what a synthetic control with exact ground truth isolates. The criterion is pre-computable --- a
 single-trace bound smaller than the field step --- so the pooled session can be chosen
-before the measurement. An amortized neural estimator trained across the whole budget
-range reproduces much of the pooled advantage and the avoidance of the unidentifiable
-regime without being told the instrument model, and is best of all methods from $80$k to
-$320$k repetitions. The practical rule that follows is not
+before the measurement. An amortized neural estimator trained once across the whole budget
+range, without being told the instrument model or which parameters are shared, stays within
+$2$--$21$ percent of the best per-budget classical estimator at every budget --- a
+consistency that no single classical estimator achieves --- although it is never itself the
+best. The practical rule that follows is not
 "pool then stop sharing" but "pool over settings you can also constrain
 individually": an instrument's sweep often contains records that a single trace cannot
 identify, and those records corrupt the very shared nuisance that pooling is meant to
@@ -203,7 +204,9 @@ exactly true for a real instrument.
 \emph{Per-trace fitting} (\texttt{lm}). Levenberg--Marquardt least squares with
 multi-start over the initial phase, fitting all six parameters of Eq.~\eqref{eq:model} from
 the FFT estimate, with nine starts inside the blind window. Raising the number of starts to
-$100$ changes the fitted fields by less than $0.1$~nT for almost every column.
+$25$ changes the fitted fields by a median of $0.03$~nT and by at most $39$~nT (at the
+lowest budget, where the statistical error is $59$~nT at best), so the baseline is not
+start-limited at the precision that matters here.
 
 \emph{Session-pooled fitting} (\texttt{pool}). A single least-squares problem over all
 $\nCols$ columns of a sweep: one $(A,C,T_2^{*},p,\phi_0)$ shared by every column and one
@@ -241,11 +244,11 @@ charged the same session time.
 Figure~\ref{fig:ladder} and Table~\ref{tab:ladder} give the central measurement. In the
 primary region, per-trace fitting attains $\rmseLmFiveK$~nT at $\rMinK$k repetitions against
 its own free-envelope bound of $\crlbFreeFiveK$~nT --- an efficiency (RMSE divided by that
-bound) between $1.0$ and $1.3$ for $r\le320$k and $0.91$ at $\rMaxK$k. The classical fitter
-is therefore essentially not improvable by a better optimiser. The bound is evaluated with a
-single reference envelope (the column mean of the high-budget fits); the sub-unity value at
-$\rMaxK$k, where the per-column envelopes differ most from that reference, is a limitation of
-the reference rather than evidence of super-efficiency. Session pooling attains $\rmsePoolFiveK$~nT against a joint bound of
+bound) between $1.0$ and $1.3$ for $r\le320$k and $0.90$ at $\rMaxK$k. The classical fitter
+is therefore essentially not improvable by a better optimiser. The bound is evaluated with
+each column's own fitted envelope and the measured noise law; the $10\%$ sub-unity value at
+$\rMaxK$k is within the uncertainty of those inputs and is not interpreted as
+super-efficiency. Session pooling attains $\rmsePoolFiveK$~nT against a joint bound of
 $\crlbJointFiveK$~nT, also efficient, and is better than per-trace fitting by a factor
 $\ratioLmPoolFiveK$ at $\rMinK$k repetitions ($\ratioLmPoolTenK$ at $10$k). The
 marginal-posterior estimator sits between the two and changes places with per-trace fitting:
@@ -262,9 +265,10 @@ Paired Wilcoxon signed-rank tests over the $34$ real columns of the primary regi
 the ordering: the pooled-versus-per-trace contrast has
 $p=\pJointVsLmTenK$ at $10$k and $\pJointVsLmFortyK$ at $40$k repetitions, while at
 $\rMinK$k it is marginal ($p=\pJointVsLmFiveK$) because the per-trace error distribution has
-a heavy tail there. The reversal at high budget is equally significant
-($p=\pJointVsLmThreeTwentyK$ at $320$k and $\pJointVsLmSixFortyK$ at $\rMaxK$k, in the
-opposite direction). We therefore present the ladder as a curve described by a two-parameter
+a heavy tail there; the pooled estimator remains ahead at $80$k and $160$k
+($p=\pJointVsLmEightyK$ and $\pJointVsLmOneSixtyK$). Above that the two become
+statistically indistinguishable ($p=\pJointVsLmThreeTwentyK$ at $320$k and
+$\pJointVsLmSixFortyK$ at $\rMaxK$k). We therefore present the ladder as a curve described by a two-parameter
 law rather than as eight independent significance claims, with the two lowest budgets as the
 pre-declared primary contrast.
 
@@ -294,12 +298,12 @@ $\rMaxK$k & \rmseLmSixFortyK & \rmsePoolSixFortyK & \rmsePartSixFortyK & \rmseNe
 \begin{figure}[t]
 \includegraphics[width=\columnwidth]{figures/fig1_ladder.pdf}
 \caption{Real data, columns 7--40. Top: field RMSE against repetitions per delay point for
-the four estimators. Shaded bands are \emph{variability}, not confidence intervals: for the
-classical estimators they span the column-to-column interquartile range within the single
-measured session, for the network the range across the five training seeds (hatched). The
-columns are field settings, not independent experimental replications, so the bands describe
-how consistent an ordering is across fields, not a sampling uncertainty of the method.
-Dashed and dotted curves
+the five estimators (three least-squares variants, the marginal-posterior estimator, and the
+network). Shaded bands are \emph{variability}, not confidence intervals: for the classical
+estimators they span a $2000$-resample percentile bootstrap over the $34$ columns, which
+quantifies how consistently an ordering holds across field settings within this single
+session and not a sampling uncertainty of the method; for the network the band is the
+interquartile spread across the five training seeds. Dashed and dotted curves
 are the two-term law of Eq.~\eqref{eq:law} fitted to the per-trace and pooled ladders; the
 vertical line is the crossover $r^{*}$. Bottom: signed mean error of the same estimators on
 the same traces (symmetric-log scale). The crossover in the top panel is the point where the
@@ -311,10 +315,9 @@ advantage. The shaded strip marks the lowest measured budget.}
 \subsection{The crossover law}
 
 Table~\ref{tab:ladder} shows that with the primary-region session the pooled estimator
-remains ahead of per-trace fitting at every budget up to $320$k repetitions and is
-essentially tied at $\rMaxK$k ($\rmsePoolSixFortyK$ against $\rmseLmSixFortyK$~nT); the two
-bias curves in the lower panel of Fig.~\ref{fig:ladder} stay comparable over the whole
-ladder.
+remains ahead of per-trace fitting at every budget up to $320$k repetitions and falls behind
+by $23\%$ at $\rMaxK$k ($\rmsePoolSixFortyK$ against $\rmseLmSixFortyK$~nT); the two bias
+curves in the lower panel of Fig.~\ref{fig:ladder} stay comparable over the whole ladder.
 
 The whole ladder is described by a two-term law,
 \begin{equation}
@@ -341,10 +344,10 @@ columns 7--40 --- the free-envelope bound that a per-trace fit must respect, and
 bound available when the envelope is shared across the $\nCols$ field settings. The shaded
 gap is the factor $\approx\!1.8$ that pooling is worth. Right: the measured RMSE of each estimator divided by the
 \emph{same} (joint) bound, so that neither can appear efficient by being normalised to its
-own reference. The per-trace estimator lies $1.6$--$1.8\times$ above the joint bound while
-photons are scarce and converges to it at high budget, where sharing stops paying; the
-pooled estimator sits near the joint bound up to $40$k and rises above it at higher budget
-as its bias floor takes over.}
+own reference. The per-trace estimator lies $1.8$--$2.2\times$ above the joint bound at the lowest
+budgets and $1.6\times$ at the highest; the pooled estimator sits within $10\%$ of the joint
+bound up to $80$k and rises to $2.0\times$ above it at the highest budget, where the small
+residual floor of Eq.~\eqref{eq:law} takes over.}
 \label{fig:bounds}
 \end{figure*}
 
@@ -379,16 +382,51 @@ $\crossoverReps$ to \lawFullRstar~repetitions --- a factor of seven. The mechani
 visible directly: the sub-cycle records contribute little information about the field but a
 great deal of noise to the shared envelope, and a nuisance estimated from them is worse for
 every other setting in the sweep. Relaxing the most inhomogeneous shared parameter
-($T_2^{*}$, which varies by $\sigma/\mu=\envTstarStd$ over the field range) recovers most
-of the difference even in the full-sweep session, but not all of it.
+($T_2^{*}$, which varies by $\sigma=\envTstarStd\mus$, i.e.\ $5\%$ of its mean, over the
+field range) recovers a large part of the difference, but not all of it: freeing $T_2^{*}$
+per column in the full-sweep session moves the floor from $\lawFullB$ to $95$~nT and the
+crossover from $\lawFullRstar$ to $6.9\times10^{5}$ repetitions, so the remaining spread is
+carried by the other shared parameters.
 
 This is the quantitative version of a caution that applies to any session-pooled analysis:
 \emph{pool over settings whose parameters you could also estimate one at a time}, or the
-pool will be dragged by the records that carry the least information. The synthetic control
-of Fig.~\ref{fig:control} reproduces the crossover of the primary-region configuration with
-exact ground truth (per-trace $\ctrlLmFiveK$ versus pooled $\ctrlPoolFiveK$~nT at $\rMinK$k,
-and per-trace $\ctrlLmSixFortyK$ versus pooled $\ctrlPoolSixFortyK$~nT at $\rMaxK$k), so the
-effect is a property of the estimator structure rather than of the measurement pipeline.
+pool will be dragged by the records that carry the least information.
+
+The synthetic control of Fig.~\ref{fig:control} tests the corresponding conclusion with
+exact ground truth. It is a \emph{full-sharing} control --- one shared envelope for a session
+of randomly drawn field settings, no measurement systematics --- and it reproduces the
+full-sharing behaviour rather than the primary-region one: with per-trace
+$\ctrlLmFiveK$ against pooled $\ctrlPoolFiveK$~nT at $\rMinK$k and $\ctrlLmSixFortyK$
+against $\ctrlPoolSixFortyK$~nT at $\rMaxK$k (medians, as this control reports), its fitted
+law has a pooled floor of $\sim\!0.4$~$\mu$T and a crossover near
+$3\times10^{4}$ repetitions. Since the synthetic session contains no unidentifiable settings
+and no instrument drift, that floor is entirely a property of sharing one envelope across
+heterogeneous settings. The primary-region result is therefore a statement about which
+settings may enter the pool, and the full-sharing control is the limiting case it avoids.
+
+\begin{figure}[t]
+\includegraphics[width=\columnwidth]{figures/fig3_control.pdf}
+\caption{Synthetic control with exact ground truth and the measured envelope population:
+field RMSE against budget for per-trace fitting, full pooling and partial pooling, with
+interquartile bands. With no measurement systematics and no unidentifiable settings present,
+the pooled estimator still acquires a floor near $0.4$~$\mu$T and is overtaken by per-trace
+fitting above $\sim\!3\times10^{4}$ repetitions, which isolates the floor as a property of
+sharing one envelope across heterogeneous settings.}
+\label{fig:control}
+\end{figure}
+
+\begin{figure}[t]
+\includegraphics[width=\columnwidth]{figures/fig4_envelope.pdf}
+\caption{Relaxation envelope measured across the $\nCols$ field settings from the
+highest-budget sheet (strip plots, one dot per field setting; the vertical line is the
+mean). Each panel gives the scatter: the contrast, offset and relaxation time vary by a few
+per cent, the stretch exponent varies by $21\%$ and includes one setting at the numerical
+bound $p=4$, and the phase is essentially common ($|R|=0.992$ is the circular mean
+resultant length, the analogue of a correlation coefficient for angles). These scatter
+values are the model-mismatch budget that the pooled estimators of
+Fig.~\ref{fig:ladder} must absorb.}
+\label{fig:env}
+\end{figure}
 
 \subsection{An objective identifiability criterion, and the add-back test}
 
@@ -399,17 +437,18 @@ a setting is individually identifiable if its \emph{single-trace} free-envelope 
 smaller than one field step, i.e.\ if a single trace can at least place the field in the
 right bin. Evaluating that bound at the lowest measured budget
 ($\rMinK$k repetitions) marks columns $1$--$7$ as unidentifiable
-(their bounds range from $4.1\times10^{3}$ to $4.9\times10^{4}$~nT against a
-$1071.4$~nT step) and columns $8$--$40$ as identifiable, so the criterion selects $33$ of
+(their bounds range from $4.1\times10^{3}$ to $4.9\times10^{4}$~nT, i.e.\ $4$ to $45$ field
+steps of $1071.4$~nT) and columns $8$--$40$ as identifiable, so the criterion selects $33$ of
 the $\nCols$ settings --- within one column of the $34$ used above. Using the strict
-$33$-setting session changes the fitted law by less than $1\%$
-($A=\lawStrictA$~nT, $b=\lawStrictB$~nT, $r^{*}=\lawStrictRstar$ repetitions), so the
-result does not hinge on the exact cutoff.
+$33$-setting session changes the law modestly --- $A=\lawStrictA$~nT ($+0.7\%$),
+$b=\lawStrictB$~nT ($-3.8\%$) and $r^{*}=\lawStrictRstar$ ($+7\%$) against the
+$34$-setting values --- so the conclusion does not hinge on the exact cutoff, though the
+crossover does move by more than the coefficients because it divides by $b^{2}$.
 
 Adding the weak settings back one at a time (Table~\ref{tab:addback}) degrades the law
 continuously rather than abruptly: each of the four best-identified weak settings costs a
-few per cent, and the two least identifiable ones (columns $2$ and $1$, single-trace bounds
-of $16$ and $20$ field steps) destroy the joint fit outright, driving $A$ to
+few per cent, and the two least identifiable ones (columns $2$ and $1$, single-trace bounds of $45$ and
+$39$ field steps) destroy the joint fit outright, driving $A$ to
 $\sim\!2.4\times10^{3}$~nT and $b$ to zero. The failure is not gradual at the end: those
 settings contribute essentially no information about the field but a great deal of
 likelihood volume along the shared-nuisance directions.
@@ -475,12 +514,14 @@ low-budget trace is used in training. Reported values are the median over
 Table~\ref{tab:ladder} and Fig.~\ref{fig:ladder} show the outcome. The network does not
 reach the classical pooled fitter at the lowest budgets ($\rmseNetSetFiveK$~nT at
 $\rMinK$k, against $\rmsePoolFiveK$~nT for shared-envelope pooling and $\rmseLmFiveK$~nT
-for per-trace fitting), but it becomes the best measured estimator of any method from
-$80$k to $320$k repetitions ($\rmseNetSetEightyK$~nT at $80$k against $\rmsePartEightyK$~nT
-for the best classical estimator; $\rmseNetSetThreeTwentyK$~nT at $320$k against
-$\rmseLmThreeTwentyK$~nT), and at $\rMaxK$k it is within $12\%$ of per-trace fitting
-($\rmseNetSetSixFortyK$ against $\rmseLmSixFortyK$~nT) while every pooled estimator is
-$1.6$--$2.5\times$ worse. In other words the network has learned to stop sharing once
+for per-trace fitting). It is never itself the best estimator at any budget: pooled
+inference is ahead of it by $11$--$21\%$ at the four lowest budgets
+($\rmseNetSetEightyK$ against $\rmsePoolEightyK$~nT at $80$k is the worst case) and per-trace
+fitting is ahead at $\rMaxK$k ($\rmseNetSetSixFortyK$ against $\rmseLmSixFortyK$~nT). What
+it does do is stay within $2$--$21\%$ of the best per-budget classical estimator at
+\emph{every} budget with a single set of weights, whereas each classical estimator is
+itself far off the best somewhere in the ladder --- the pooled fitter by $23\%$ at
+$\rMaxK$k and per-trace fitting by $63\%$ at $\rMinK$k. In other words the network has learned to stop sharing once
 sharing becomes harmful, which is the budget-dependent behaviour that the fitted law
 prescribes without the law being supplied to it. We stress that the network is \emph{not}
 structure-free: it is conditioned on the noise level, trained on sessions with one shared
@@ -670,12 +711,14 @@ maximum-likelihood solution converges to the same fields.
 One limitation we do not hide: the whole pipeline is initialised from a blind
 FFT$+$Rife estimate, and its reliability is inherited from that initialization. On the real
 traces the FFT estimate is accurate to a median $1.1\times10^{3}$~nT, well inside the
-$\pm3.2\times10^{3}$~nT window used by the refiners. In synthetic sessions drawn from the
-same envelope population the FFT estimate is occasionally much worse (median error up to
-$6.7\times10^{3}$~nT at $\rMinK$k), and when that happens \emph{every} estimator in the
-comparison degrades together, since they share the initialization. A synthetic-recovery
-test through the identical pipeline therefore tests the initialization as much as the
-estimator, and we report it as such rather than as a validation of the real-data numbers.
+$\pm3.2\times10^{3}$~nT window used by the refiners. Synthetic sessions drawn from the same envelope population have a
+comparable median initialisation error ($0.9\times10^{3}$~nT over twelve sessions, range
+$0.7$--$1.2\times10^{3}$~nT), but a heavier tail: a minority of columns receive an
+initialisation that is far worse than the median, and because every estimator in the
+comparison shares that initialisation, those columns degrade all of them together. A
+synthetic-recovery test through the identical pipeline therefore exercises the
+initialisation as much as the estimator, and we report it as such rather than as a
+validation of the real-data numbers.
 
 \begin{thebibliography}{99}
 \bibitem{Taylor2008} J.~M.~Taylor \emph{et al.}, Nat. Phys. \textbf{4}, 810 (2008).
