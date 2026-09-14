@@ -228,6 +228,11 @@ if os.path.exists(st):
     m("lawFullA", D["full_sweep_40"]["A"], "{:.1f}")
     m("lawFullB", D["full_sweep_40"]["b"], "{:.1f}")
     sci("lawFullRstar", D["full_sweep_40"]["rstar"])
+    tf = D.get("full_sweep_40_T2free")
+    if tf:
+        m("lawFullTFreeA", tf["A"], "{:.1f}")
+        m("lawFullTFreeB", tf["b"], "{:.1f}")
+        sci("lawFullTFreeRstar", tf["rstar"])
 
 
 # add-back robustness and the strict identifiability criterion
