@@ -346,9 +346,9 @@ gap is the factor $\approx\!1.8$ that pooling is worth. Right: the measured RMSE
 \emph{same} (joint) bound, so that neither can appear efficient by being normalised to its
 own reference. The per-trace estimator lies $1.6$--$2.2\times$ above the joint bound at every budget
 (the ratio has no clear trend with photon budget); the pooled estimator lies within
-$10\%$ of the joint bound at most budgets, with excursions to $1.3\times$ at $20$k and
-$160$k, and rises to $2.0\times$ at the highest budget, where the small residual floor of
-Eq.~\eqref{eq:law} takes over.}
+$10\%$ of the joint bound at four of the eight budgets, with excursions to $1.3\times$ at
+$20$k and $160$k, $1.6\times$ at $320$k and $2.0\times$ at the highest budget, where the
+small residual floor of Eq.~\eqref{eq:law} takes over.}
 \label{fig:bounds}
 \end{figure*}
 
@@ -384,7 +384,7 @@ visible directly: the sub-cycle records contribute little information about the 
 great deal of noise to the shared envelope, and a nuisance estimated from them is worse for
 every other setting in the sweep. Relaxing the most inhomogeneous shared parameter
 ($T_2^{*}$, which varies by $\sigma=\envTstarStd\mus$, i.e.\ $5\%$ of its mean, over the
-field range) recovers about $40\%$ of the difference, but not all of it: freeing $T_2^{*}$
+field range) recovers $65\%$ of the difference, but not all of it: freeing $T_2^{*}$
 per column in the full-sweep session moves the floor from \lawFullB~nT to
 $\lawFullTFreeB$~nT and the crossover from \lawFullRstar{} to
 $\lawFullTFreeRstar$ repetitions, so part of the penalty is carried by the other shared
@@ -518,9 +518,10 @@ Table~\ref{tab:ladder} and Fig.~\ref{fig:ladder} show the outcome. The network d
 reach the classical pooled fitter at the lowest budgets ($\rmseNetSetFiveK$~nT at
 $\rMinK$k, against $\rmsePoolFiveK$~nT for shared-envelope pooling and $\rmseLmFiveK$~nT
 for per-trace fitting). It is never itself the best estimator at any budget: pooled
-inference is ahead of it at every budget below $\rMaxK$k, by $3.5$--$21\%$
-($\rmseNetSetEightyK$ against $\rmsePoolEightyK$~nT at $80$k is the worst case, and the two
-are within $4\%$ at $20$k), and per-trace fitting is ahead at $\rMaxK$k
+inference is ahead of it at every budget below $\rMaxK$k, by $2.2$--$21\%$ across those
+seven budgets ($\rmseNetSetEightyK$ against $\rmsePoolEightyK$~nT at $80$k is the worst case;
+the two are within $4\%$ at $20$k and within $2.2\%$ at $320$k), and per-trace fitting is
+ahead at $\rMaxK$k
 ($\rmseNetSetSixFortyK$ against $\rmseLmSixFortyK$~nT). What
 it does do is stay within $2$--$21\%$ of the best per-budget classical estimator at
 \emph{every} budget with a single set of weights, whereas each classical estimator is
@@ -569,15 +570,19 @@ practice this is worth a factor $\sqrt{\photonGainFactor}$ in precision, or a fa
 $\photonGainFactor$ in the number of repetitions needed to reach a target field
 uncertainty, whenever the budget is below $r^{*}$.
 
-\emph{(ii) The gain has a floor, and the floor is measurable instrument physics.} Sharing is
-only as good as the shared model. The relaxation envelope of our instrument varies by
-$\pm5\%$ across the field range, and that variation sets a bias floor
-$b_{\rm pool}\approx\lawBPool$~nT which is negligible at $\rMinK$k repetitions and dominant
-at $\rMaxK$k. The two-term law of Eq.~\eqref{eq:law} together with the crossover
-$r^{*}\approx\crossoverRepsRounded\times10^{4}$ repetitions is the quantitative version of
-the resulting rule: share while the photon term dominates, stop sharing when it no longer
-does. Because both terms are measurable before an experiment, $A$ from the bound ratio and
-$b$ from the envelope scatter, the crossover is predictable rather than merely empirical.
+\emph{(ii) The gain has a floor, and where the floor comes from depends on the session.}
+Sharing is only as good as the shared model, and our instrument's relaxation envelope does
+vary across the field range --- by $5\%$ of its mean in $T_2^{*}$ and by $21\%$ in the
+stretch exponent (Fig.~\ref{fig:env}). But that variation is not by itself what costs: in
+the identifiability-filtered session, where the floor is only
+$b_{\rm pool}=\lawBPool$~nT, releasing $T_2^{*}$ per column changes it by $4.4$~nT, so there
+the residual floor is carried by the other shared parameters rather than by the relaxation
+time. The envelope inhomogeneity matters through the session instead: pool the full sweep
+and the floor rises to $\lawFullB$~nT, of which freeing $T_2^{*}$ recovers $65\%$. Both
+terms of Eq.~\eqref{eq:law} are measurable before an experiment --- $A$ from the bound
+ratio, $b$ from the envelope scatter and the identifiability of the settings --- so the
+crossover is predictable rather than merely empirical, provided the session is chosen
+deliberately.
 
 \emph{(iii) A single amortized estimator reproduces the budget-dependent strategy.} A
 network trained once, across the whole $\rMinK$k--$\rMaxK$k range, tracks the better
@@ -613,9 +618,10 @@ their calibrated treatment belongs to companion work~\cite{L1companion}.
 The session-definition result of Table~\ref{tab:session} sharpens all three statements
 into a two-step rule. The prescription is not "pool or do not pool" but \emph{choose the session and the sharing
 pattern deliberately}. In the identifiability-filtered session the shared envelope costs
-little: full and partial pooling differ by $4.4$~nT of floor (Table~\ref{tab:ladder}), so
-sharing the relaxation time there is harmless. In the full sweep, by contrast, freeing the
-relaxation time removes $64$~nT of floor (Table~\ref{tab:session} and the text above). Applying
+little: full and partial pooling differ by $4.4$~nT of floor (Table~\ref{tab:session}), so
+sharing the relaxation time there is harmless. In the full sweep, by contrast, the same
+relaxation releases $64$~nT of floor, and it is that session in which sharing the
+inhomogeneous parameters is what advances the crossover. Applying
 that rule gives the scheduling consequence: if a target field uncertainty is specified, the
 cheapest protocol is the one whose floor lies below that target --- pool aggressively while
 photons are scarce, relax the inhomogeneous parameters once the target approaches the floor,
